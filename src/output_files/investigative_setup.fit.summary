@@ -1,12 +1,12 @@
-Fitter Status : Successful - Fri Apr 24 14:14:19 2026
+Fitter Status : Successful - Wed Apr 29 18:24:09 2026
 Quartus Prime Version : 18.0.0 Build 614 04/24/2018 SJ Standard Edition
 Revision Name : investigative_setup
 Top-level Entity Name : investigative_setup
 Family : Cyclone IV E
 Device : EP4CE15F17C8
 Timing Models : Final
-Total logic elements : 138 / 15,408 ( < 1 % )
-    Total combinational functions : 132 / 15,408 ( < 1 % )
+Total logic elements : 142 / 15,408 ( < 1 % )
+    Total combinational functions : 134 / 15,408 ( < 1 % )
     Dedicated logic registers : 94 / 15,408 ( < 1 % )
 Total registers : 94
 Total pins : 21 / 166 ( 13 % )

@@ -1,0 +1,7 @@
+
+State Machine - |investigative_setup|acq_ctrl:u_acq_ctrl|acq_state
+Name acq_state.11 acq_state.10 acq_state.01 acq_state.00 
+acq_state.00 0 0 0 0 
+acq_state.01 0 0 1 1 
+acq_state.10 0 1 0 1 
+acq_state.11 1 0 0 1 
