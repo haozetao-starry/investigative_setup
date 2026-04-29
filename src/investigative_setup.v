@@ -12,8 +12,6 @@ module investigative_setup(
 // 内部信号定义
 //==================================================
 // DDS与DAC相关信号
-wire [7:0]  da_rd_addr;
-wire [7:0]  da_rd_data;
 wire [31:0] f_word;
 wire [8:0]  a_word = 9'd256;
 wire [7:0]  dds_wave;
@@ -64,13 +62,10 @@ dds_top u_dds_top(
 );
 
 // 将DDS波形直通DAC发送模块
-assign da_rd_data = dds_wave;
-
 da_wave_send u_da_wave_send(
     .clk         (sys_clk),
     .rst_n       (sys_rst_n),
-    .rd_data     (da_rd_data),
-    .rd_addr     (da_rd_addr),
+    .rd_data     (dds_wave),
     .da_clk      (da_clk),
     .da_data     (da_data)
 );
