@@ -20,3 +20,6 @@ assign  da_clk  = ~clk;
 assign  da_data = rd_data;   //将读到的数据赋给DA端口直接输出
 
 endmodule
+
+
+endmodule

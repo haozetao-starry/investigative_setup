@@ -1,5 +1,5 @@
 Fitter report for investigative_setup
-Wed Apr 29 18:24:09 2026
+Wed Apr 29 18:55:57 2026
 Quartus Prime Version 18.0.0 Build 614 04/24/2018 SJ Standard Edition
 
 
@@ -67,7 +67,7 @@ refer to the applicable agreement for further details.
 +--------------------------------------------------------------------------------------+
 ; Fitter Summary                                                                       ;
 +------------------------------------+-------------------------------------------------+
-; Fitter Status                      ; Successful - Wed Apr 29 18:24:09 2026           ;
+; Fitter Status                      ; Successful - Wed Apr 29 18:55:57 2026           ;
 ; Quartus Prime Version              ; 18.0.0 Build 614 04/24/2018 SJ Standard Edition ;
 ; Revision Name                      ; investigative_setup                             ;
 ; Top-level Entity Name              ; investigative_setup                             ;
@@ -159,7 +159,7 @@ refer to the applicable agreement for further details.
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
-;     Processors 2-16        ;   0.6%      ;
+;     Processors 2-16        ;   0.7%      ;
 +----------------------------+-------------+
 
 
@@ -1316,9 +1316,9 @@ Info (334004): Delay annotation completed successfully
 Info (11218): Fitter post-fit operations ending: elapsed time is 00:00:01
 Info (144001): Generated suppressed messages file C:/Users/Lenovo/Desktop/investigative_setup/src/output_files/investigative_setup.fit.smsg
 Info: Quartus Prime Fitter was successful. 0 errors, 4 warnings
-    Info: Peak virtual memory: 6533 megabytes
-    Info: Processing ended: Wed Apr 29 18:24:09 2026
-    Info: Elapsed time: 00:00:05
+    Info: Peak virtual memory: 6534 megabytes
+    Info: Processing ended: Wed Apr 29 18:55:58 2026
+    Info: Elapsed time: 00:00:06
     Info: Total CPU time (on all processors): 00:00:08
 
 
