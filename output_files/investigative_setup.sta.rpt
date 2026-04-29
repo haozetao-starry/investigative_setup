@@ -1,5 +1,5 @@
 Timing Analyzer report for investigative_setup
-Wed Apr 29 19:24:32 2026
+Wed Apr 29 19:26:20 2026
 Quartus Prime Version 18.0.0 Build 614 04/24/2018 SJ Standard Edition
 
 
@@ -103,7 +103,7 @@ refer to the applicable agreement for further details.
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
-;     Processor 2            ;   2.6%      ;
+;     Processor 2            ;   2.5%      ;
 ;     Processors 3-16        ;   0.7%      ;
 +----------------------------+-------------+
 
@@ -1157,7 +1157,7 @@ No non-DPA dedicated SERDES Receiver circuitry present in device or used in desi
 Info: *******************************************************************
 Info: Running Quartus Prime Timing Analyzer
     Info: Version 18.0.0 Build 614 04/24/2018 SJ Standard Edition
-    Info: Processing started: Wed Apr 29 19:24:30 2026
+    Info: Processing started: Wed Apr 29 19:26:17 2026
 Info: Command: quartus_sta investigative_setup -c investigative_setup
 Info: qsta_default_script.tcl version: #2
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
@@ -1229,9 +1229,9 @@ Info (332146): Worst-case minimum pulse width slack is -3.000
 Info (332102): Design is not fully constrained for setup requirements
 Info (332102): Design is not fully constrained for hold requirements
 Info: Quartus Prime Timing Analyzer was successful. 0 errors, 5 warnings
-    Info: Peak virtual memory: 4915 megabytes
-    Info: Processing ended: Wed Apr 29 19:24:32 2026
-    Info: Elapsed time: 00:00:02
+    Info: Peak virtual memory: 4911 megabytes
+    Info: Processing ended: Wed Apr 29 19:26:20 2026
+    Info: Elapsed time: 00:00:03
     Info: Total CPU time (on all processors): 00:00:02
 
 
