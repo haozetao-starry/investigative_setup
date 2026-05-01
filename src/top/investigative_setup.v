@@ -5,7 +5,12 @@ module investigative_setup(
     output      [7:0]     da_data,
     input       [7:0]     ad_data,
     input                 ad_otr,
-    output                ad_clk
+    output                ad_clk,
+    output                fft_busy,
+    output                fft_done,
+    output      [9:0]     fft_peak_freq_idx,
+    output      [31:0]    fft_peak_mag,
+    output      [5:0]     fft_peak_exp
 );
 
 //==================================================
@@ -111,6 +116,26 @@ ad_wave_rec u_ad_wave_rec(
 );
 
 // 暂时接零，待加入FFT时，ad_rd_addr 由FFT读取逻辑控制
-assign ad_rd_addr = 10'd0;
+// assign ad_rd_addr = 10'd0;
+
+//==================================================
+// 4. FFT 频谱分析模块
+//==================================================
+
+fft_processor u_fft_processor (
+    .clk          (sys_clk),
+    .rst_n        (sys_rst_n),
+    
+    .fft_start_en (fft_start_en),
+    .fft_busy     (fft_busy),
+    .fft_done     (fft_done),
+    
+    .ad_rd_addr   (ad_rd_addr),
+    .ad_rd_data   (ad_rd_data),
+    
+    .peak_freq_idx(fft_peak_freq_idx),
+    .peak_mag     (fft_peak_mag),
+    .peak_exp     (fft_peak_exp)
+);
 
 endmodule
