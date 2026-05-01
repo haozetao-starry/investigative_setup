@@ -1,9 +1,14 @@
 
-State Machine - |investigative_setup|fft_processor:u_fft_processor|sink_state
-Name sink_state.000 sink_state.010 sink_state.001 
-sink_state.000 0 0 0 
-sink_state.001 1 0 1 
-sink_state.010 1 1 0 
+State Machine - |investigative_setup|filter_classifier:u_filter_classifier|state
+Name state.ST_IDLE state.ST_CLASSIFY state.ST_SCAN 
+state.ST_IDLE 0 0 0 
+state.ST_SCAN 1 0 1 
+state.ST_CLASSIFY 1 1 0 
+
+State Machine - |investigative_setup|fft_processor:u_fft_processor|state
+Name state.ST_RUN 
+state.ST_IDLE 0 
+state.ST_RUN 1 
 
 State Machine - |investigative_setup|fft_processor:u_fft_processor|FFT:u_fft|FFT_fft_ii_0:fft_ii_0|asj_fft_sglstream:asj_fft_sglstream_inst|fft_s2_cur
 Name fft_s2_cur.LAST_LPP_C fft_s2_cur.LPP_C_OUTPUT fft_s2_cur.FIRST_LPP_C fft_s2_cur.WAIT_FOR_LPP_INPUT fft_s2_cur.IDLE 
@@ -67,9 +72,11 @@ sink_state.run1 0 0 1 0 1
 sink_state.st_err 0 1 0 0 1 
 sink_state.end1 1 0 0 0 1 
 
-State Machine - |investigative_setup|acq_ctrl:u_acq_ctrl|acq_state
-Name acq_state.11 acq_state.10 acq_state.01 acq_state.00 
-acq_state.00 0 0 0 0 
-acq_state.01 0 0 1 1 
-acq_state.10 0 1 0 1 
-acq_state.11 1 0 0 1 
+State Machine - |investigative_setup|acq_ctrl:u_acq_ctrl|state
+Name state.ST_WAIT_CLASSIFY state.ST_WAIT_RLS state.ST_WAIT_FFT state.ST_WAIT_BUF state.ST_PULSE_ACQ state.ST_IDLE 
+state.ST_IDLE 0 0 0 0 0 0 
+state.ST_PULSE_ACQ 0 0 0 0 1 1 
+state.ST_WAIT_BUF 0 0 0 1 0 1 
+state.ST_WAIT_FFT 0 0 1 0 0 1 
+state.ST_WAIT_RLS 0 1 0 0 0 1 
+state.ST_WAIT_CLASSIFY 1 0 0 0 0 1 

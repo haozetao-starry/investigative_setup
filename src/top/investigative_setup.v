@@ -5,137 +5,230 @@ module investigative_setup(
     output      [7:0]     da_data,
     input       [7:0]     ad_data,
     input                 ad_otr,
-    output                ad_clk,
-    output                fft_busy,
-    output                fft_done,
-    output      [9:0]     fft_peak_freq_idx,
-    output      [31:0]    fft_peak_mag,
-    output      [5:0]     fft_peak_exp
+    output                ad_clk
 );
 
-//==================================================
-// 内部信号定义
-//==================================================
-// DDS与DAC相关信号
-wire [31:0] f_word;
-wire [8:0]  a_word = 9'd256;
-wire [7:0]  dds_wave;
-wire        sweep_phase_clr;
-wire        sweep_step_sync;
-wire        sweep_busy;
-wire        sweep_done;
+    wire [31:0] f_word;
+    wire [8:0]  a_word = 9'd256;
+    wire [7:0]  dds_wave;
+    wire        sweep_phase_clr;
+    wire        sweep_step_sync;
+    wire        sweep_busy;
+    wire        sweep_done;
 
-// ADC 缓存与控制相关信号
-wire [9:0]  ad_rd_addr;    // 1024深度需要10位地址
-wire [7:0]  ad_rd_data;
-wire        ad_buf_full;
-wire        ad_otr_flag;
-wire        ad_acq_start;  // ADC采集启动触发 (由 acq_ctrl 驱动)
-wire [15:0] ad_smp_div;    // ADC动态降采样率分频系数 (由 acq_ctrl 驱动)
-wire        fft_start_en;  // 给FFT预留的触发信号 (由 acq_ctrl 驱动)
+    wire        ad_buf_full;
+    wire        ad_otr_flag;
+    wire        ad_acq_start;
+    wire [15:0] ad_smp_div;
+    wire        fft_start_en;
+    wire        rls_start_en;
+    wire        store_result_en;
+    wire        classify_start;
+    wire        store_clear;
+    wire        sweep_restart;
+    wire        fft_busy;
+    wire        fft_done;
+    wire [9:0]  fft_peak_freq_idx;
+    wire [31:0] fft_peak_mag;
+    wire [5:0]  fft_peak_exp;
+    wire [31:0] h_mag_q16;
+    wire signed [15:0] h_phase_deg_q8;
+    wire [2:0]  filter_type;
+    wire        mimic_mode;
+    wire        model_valid;
+    wire [6:0]  sweep_result_count;
+    wire [31:0] rls_avg_sq_err;
 
-//==================================================
-// 1. DDS 扫频控制与波形产生
-//==================================================
-dds_sweep_ctrl #(
-    .CLK_FREQ_HZ           (50000000),
-    .START_FREQ_HZ         (100),
-    .STOP_FREQ_HZ          (10000),
-    .STEP_FREQ_HZ          (100),
-    .STEP_PERIOD_CLKS      (2500000), // 为了兼顾低频采样(需要更长的时间)，加大单个步进的停留时间(50ms)
-    .REPEAT_SWEEP          (1),
-    .RESET_PHASE_EACH_STEP (1)
-) u_dds_sweep_ctrl (
-    .clk         (sys_clk),
-    .rst_n       (sys_rst_n),
-    .sweep_en    (1'b1),
-    .restart     (1'b0),
-    .f_word      (f_word),
-    .phase_clr   (sweep_phase_clr),
-    .step_sync   (sweep_step_sync), // 频率切换同步脉冲
-    .sweep_busy  (sweep_busy),
-    .sweep_done  (sweep_done)
-);
+    wire [9:0]  capture_rd_addr;
+    wire [9:0]  fft_rd_addr;
+    wire [7:0]  ad_rd_data;
+    wire [7:0]  ref_rd_data;
 
-dds_top u_dds_top(
-    .clk         (sys_clk),
-    .rst_n       (sys_rst_n),
-    .phase_clr   (sweep_phase_clr),
-    .f_word      (f_word),
-    .a_word      (a_word),
-    .wave_out    (dds_wave)
-);
+    wire [31:0] ref_mag;
+    wire [31:0] rsp_mag;
+    wire signed [15:0] ref_phase_deg_q8;
+    wire signed [15:0] rsp_phase_deg_q8;
 
-// 将DDS波形直通DAC发送模块
-da_wave_send u_da_wave_send(
-    .clk         (sys_clk),
-    .rst_n       (sys_rst_n),
-    .rd_data     (dds_wave),
-    .da_clk      (da_clk),
-    .da_data     (da_data)
-);
+    wire signed [31:0] coeff_b0;
+    wire signed [31:0] coeff_b1;
+    wire signed [31:0] coeff_b2;
+    wire signed [31:0] coeff_a1;
+    wire signed [31:0] coeff_a2;
+    wire               rls_busy;
+    wire               rls_done;
 
-//==================================================
-// 2. ADC 采集触发与全局状态控制 (独立模块)
-//==================================================
-acq_ctrl u_acq_ctrl(
-    .clk              (sys_clk        ),
-    .rst_n            (sys_rst_n      ),
-    
-    // 与 DDS 交互
-    .f_word           (f_word         ),
-    .sweep_step_sync  (sweep_step_sync),
-    
-    // 与 ADC 交互
-    .ad_buf_full      (ad_buf_full    ),
-    .ad_acq_start     (ad_acq_start   ),
-    .ad_smp_div       (ad_smp_div     ),
-    
-    // 为以后预留
-    .fft_start_en     (fft_start_en   )
-);
+    wire [7:0]  biquad_wave;
+    wire [7:0]  da_src_data;
 
-//==================================================
-// 3. ADC 波形接收与缓存 
-//==================================================
-ad_wave_rec u_ad_wave_rec(
-    .clk         (sys_clk),
-    .rst_n       (sys_rst_n),
-    .ad_data     (ad_data),
-    .ad_otr      (ad_otr),
-    
-    .acq_start   (ad_acq_start), // 连接触发模块发来的启动脉冲
-    .smp_div     (ad_smp_div),   // 连接动态计算的分频系数
-    .rd_addr     (ad_rd_addr),
-    .rd_en       (1'b1),         // 为以后FFT模块准备的读使能，暂时常开
-    
-    .ad_clk      (ad_clk),
-    .rd_data     (ad_rd_data),
-    .buf_full    (ad_buf_full),
-    .otr_flag    (ad_otr_flag)
-);
+    wire [6:0]  cls_read_index;
+    wire [31:0] cls_read_freq_word;
+    wire [9:0]  cls_read_peak_bin;
+    wire [31:0] cls_read_h_mag_q16;
+    wire signed [15:0] cls_read_h_phase_deg_q8;
+    wire               cls_read_valid;
+    wire               classifier_done;
 
-// 暂时接零，待加入FFT时，ad_rd_addr 由FFT读取逻辑控制
-// assign ad_rd_addr = 10'd0;
+    wire frame_last_for_rls = (f_word >= 32'd858993);
 
-//==================================================
-// 4. FFT 频谱分析模块
-//==================================================
+    assign capture_rd_addr = fft_busy ? fft_rd_addr : 10'd0;
+    assign da_src_data     = mimic_mode ? biquad_wave : dds_wave;
 
-fft_processor u_fft_processor (
-    .clk          (sys_clk),
-    .rst_n        (sys_rst_n),
-    
-    .fft_start_en (fft_start_en),
-    .fft_busy     (fft_busy),
-    .fft_done     (fft_done),
-    
-    .ad_rd_addr   (ad_rd_addr),
-    .ad_rd_data   (ad_rd_data),
-    
-    .peak_freq_idx(fft_peak_freq_idx),
-    .peak_mag     (fft_peak_mag),
-    .peak_exp     (fft_peak_exp)
-);
+    dds_sweep_ctrl #(
+        .CLK_FREQ_HZ           (50000000),
+        .START_FREQ_HZ         (100),
+        .STOP_FREQ_HZ          (10000),
+        .STEP_FREQ_HZ          (100),
+        .STEP_PERIOD_CLKS      (2500000),
+        .REPEAT_SWEEP          (1),
+        .RESET_PHASE_EACH_STEP (1)
+    ) u_dds_sweep_ctrl (
+        .clk         (sys_clk),
+        .rst_n       (sys_rst_n),
+        .sweep_en    (1'b1),
+        .restart     (sweep_restart),
+        .f_word      (f_word),
+        .phase_clr   (sweep_phase_clr),
+        .step_sync   (sweep_step_sync),
+        .sweep_busy  (sweep_busy),
+        .sweep_done  (sweep_done)
+    );
+
+    dds_top u_dds_top(
+        .clk       (sys_clk),
+        .rst_n     (sys_rst_n),
+        .phase_clr (sweep_phase_clr),
+        .f_word    (f_word),
+        .a_word    (a_word),
+        .wave_out  (dds_wave)
+    );
+
+    acq_ctrl u_acq_ctrl(
+        .clk             (sys_clk),
+        .rst_n           (sys_rst_n),
+        .f_word          (f_word),
+        .sweep_step_sync (sweep_step_sync),
+        .ad_buf_full     (ad_buf_full),
+        .fft_done        (fft_done),
+        .rls_done        (rls_done),
+        .classifier_done (classifier_done),
+        .rls_avg_sq_err  (rls_avg_sq_err),
+        .ad_acq_start    (ad_acq_start),
+        .ad_smp_div      (ad_smp_div),
+        .fft_start_en    (fft_start_en),
+        .rls_start_en    (rls_start_en),
+        .store_result_en (store_result_en),
+        .classify_start  (classify_start),
+        .store_clear     (store_clear),
+        .sweep_restart   (sweep_restart),
+        .mimic_mode      (mimic_mode),
+        .model_valid     (model_valid)
+    );
+
+    ad_wave_rec u_ad_wave_rec(
+        .clk         (sys_clk),
+        .rst_n       (sys_rst_n),
+        .ad_data     (ad_data),
+        .ad_otr      (ad_otr),
+        .ref_data_in (dds_wave),
+        .acq_start   (ad_acq_start),
+        .smp_div     (ad_smp_div),
+        .rd_addr     (capture_rd_addr),
+        .rd_en       (1'b1),
+        .ad_clk      (ad_clk),
+        .rd_data     (ad_rd_data),
+        .ref_rd_data (ref_rd_data),
+        .buf_full    (ad_buf_full),
+        .otr_flag    (ad_otr_flag)
+    );
+
+    fft_processor u_fft_processor(
+        .clk              (sys_clk),
+        .rst_n            (sys_rst_n),
+        .fft_start_en     (fft_start_en),
+        .fft_busy         (fft_busy),
+        .fft_done         (fft_done),
+        .rd_addr          (fft_rd_addr),
+        .ref_rd_data      (ref_rd_data),
+        .rsp_rd_data      (ad_rd_data),
+        .peak_freq_idx    (fft_peak_freq_idx),
+        .peak_mag         (fft_peak_mag),
+        .peak_exp         (fft_peak_exp),
+        .ref_mag          (ref_mag),
+        .rsp_mag          (rsp_mag),
+        .h_mag_q16        (h_mag_q16),
+        .ref_phase_deg_q8 (ref_phase_deg_q8),
+        .rsp_phase_deg_q8 (rsp_phase_deg_q8),
+        .h_phase_deg_q8   (h_phase_deg_q8)
+    );
+
+    sweep_result_store u_sweep_result_store(
+        .clk                 (sys_clk),
+        .rst_n               (sys_rst_n),
+        .clear               (store_clear),
+        .write_en            (store_result_en),
+        .freq_word           (f_word),
+        .peak_bin            (fft_peak_freq_idx),
+        .h_mag_q16           (h_mag_q16),
+        .h_phase_deg_q8      (h_phase_deg_q8),
+        .read_index          (cls_read_index),
+        .read_freq_word      (cls_read_freq_word),
+        .read_peak_bin       (cls_read_peak_bin),
+        .read_h_mag_q16      (cls_read_h_mag_q16),
+        .read_h_phase_deg_q8 (cls_read_h_phase_deg_q8),
+        .read_valid          (cls_read_valid),
+        .result_count        (sweep_result_count)
+    );
+
+    filter_classifier u_filter_classifier(
+        .clk                (sys_clk),
+        .rst_n              (sys_rst_n),
+        .start              (classify_start),
+        .result_count       (sweep_result_count),
+        .read_index         (cls_read_index),
+        .read_h_mag_q16     (cls_read_h_mag_q16),
+        .read_h_phase_deg_q8(cls_read_h_phase_deg_q8),
+        .read_valid         (cls_read_valid),
+        .done               (classifier_done),
+        .filter_type        (filter_type)
+    );
+
+    rls_estimator u_rls_estimator(
+        .clk            (sys_clk),
+        .rst_n          (sys_rst_n),
+        .model_clear    (store_clear),
+        .rls_start_en   (rls_start_en),
+        .frame_last     (frame_last_for_rls),
+        .h_mag_q16      (h_mag_q16),
+        .h_phase_deg_q8 (h_phase_deg_q8),
+        .rls_busy       (rls_busy),
+        .rls_done       (rls_done),
+        .coeff_b0       (coeff_b0),
+        .coeff_b1       (coeff_b1),
+        .coeff_b2       (coeff_b2),
+        .coeff_a1       (coeff_a1),
+        .coeff_a2       (coeff_a2),
+        .avg_sq_err     (rls_avg_sq_err)
+    );
+
+    biquad_emulator u_biquad_emulator(
+        .clk        (sys_clk),
+        .rst_n      (sys_rst_n),
+        .coeff_valid(model_valid),
+        .x_in       (dds_wave),
+        .coeff_b0   (coeff_b0),
+        .coeff_b1   (coeff_b1),
+        .coeff_b2   (coeff_b2),
+        .coeff_a1   (coeff_a1),
+        .coeff_a2   (coeff_a2),
+        .y_out      (biquad_wave)
+    );
+
+    da_wave_send u_da_wave_send(
+        .clk     (sys_clk),
+        .rst_n   (sys_rst_n),
+        .rd_data (da_src_data),
+        .da_clk  (da_clk),
+        .da_data (da_data)
+    );
 
 endmodule

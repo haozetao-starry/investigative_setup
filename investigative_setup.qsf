@@ -52,7 +52,12 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+
 set_global_assignment -name VERILOG_FILE src/fft/fft_processor.v
+set_global_assignment -name VERILOG_FILE src/analysis/sweep_result_store.v
+set_global_assignment -name VERILOG_FILE src/analysis/filter_classifier.v
+set_global_assignment -name VERILOG_FILE src/analysis/rls_estimator.v
+set_global_assignment -name VERILOG_FILE src/emulation/biquad_emulator.v
 set_global_assignment -name SIP_FILE IP/FFT/simulation/FFT.sip
 set_global_assignment -name QIP_FILE IP/FFT/synthesis/FFT.qip
 set_global_assignment -name VERILOG_FILE src/top/investigative_setup.v
