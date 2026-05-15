@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 380" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/></marker>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#2d5a87"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="780" height="380" fill="#f8fafc" rx="6"/>
+
+  <!-- 标题 -->
+  <rect x="0" y="0" width="780" height="42" rx="6" fill="url(#titleGrad)"/>
+  <rect x="0" y="32" width="780" height="10" fill="url(#titleGrad)"/>
+  <text x="390" y="27" text-anchor="middle" fill="white" font-size="15" font-weight="bold">dds_top — DDS信号源 内部结构图</text>
+
+  <!-- ===== 流水线结构 ===== -->
+
+  <!-- 阶段1: 相位累加器 -->
+  <rect x="30" y="65" width="210" height="100" rx="8" fill="white" stroke="#2563eb" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="135" y="88" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="bold">① 相位累加器 (dds_phase)</text>
+  <line x1="50" y1="96" x2="220" y2="96" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="135" y="114" text-anchor="middle" fill="#475569" font-size="11">32-bit寄存器累加 f_word</text>
+  <text x="135" y="132" text-anchor="middle" fill="#475569" font-size="11">phase_acc[n+1] = phase_acc[n] + f_word</text>
+  <text x="135" y="152" text-anchor="middle" fill="#888" font-size="10">高10-bit → ROM地址 (1024深)</text>
+
+  <!-- 输入标注 -->
+  <text x="35" y="58" fill="#2563eb" font-size="10" font-weight="bold">f_word [31:0]</text>
+  <text x="160" y="58" fill="#2563eb" font-size="10">phase_clr</text>
+
+  <!-- 阶段1→2 箭头 -->
+  <line x1="240" y1="115" x2="295" y2="115" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <text x="267" y="108" text-anchor="middle" fill="#2563eb" font-size="9">addr[9:0]</text>
+
+  <!-- 阶段2: 正弦ROM -->
+  <rect x="300" y="65" width="210" height="100" rx="8" fill="white" stroke="#2563eb" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="405" y="88" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="bold">② 正弦ROM (sin_rom IP)</text>
+  <line x1="320" y1="96" x2="490" y2="96" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="405" y="114" text-anchor="middle" fill="#475569" font-size="11">1024 × 10-bit 单端口ROM</text>
+  <text x="405" y="132" text-anchor="middle" fill="#475569" font-size="11">存储完整周期正弦波</text>
+  <text x="405" y="152" text-anchor="middle" fill="#888" font-size="10">输出: 10-bit有符号正弦值</text>
+
+  <!-- 阶段2→3 箭头 -->
+  <line x1="510" y1="115" x2="565" y2="115" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <text x="537" y="108" text-anchor="middle" fill="#2563eb" font-size="9">sin[9:0]</text>
+
+  <!-- 阶段3: 幅度调制 -->
+  <rect x="570" y="65" width="190" height="100" rx="8" fill="white" stroke="#2563eb" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="665" y="88" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="bold">③ 幅度调制 (dds_amp)</text>
+  <line x1="590" y1="96" x2="750" y2="96" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="665" y="114" text-anchor="middle" fill="#475569" font-size="11">缩放+偏置转换</text>
+  <text x="665" y="132" text-anchor="middle" fill="#475569" font-size="11">out = (sin × a_word)/512 + 128</text>
+  <text x="665" y="152" text-anchor="middle" fill="#888" font-size="10">输出: 8-bit无符号 [0,255]</text>
+
+  <!-- 输出 -->
+  <rect x="590" y="180" width="150" height="28" rx="14" fill="#22c55e" filter="url(#shadow)"/>
+  <text x="665" y="199" text-anchor="middle" fill="white" font-size="12" font-weight="bold">wave_out [7:0]</text>
+
+  <line x1="665" y1="165" x2="665" y2="178" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- a_word标注 -->
+  <text x="605" y="60" fill="#2563eb" font-size="10">a_word=256(半幅)</text>
+
+  <!-- 时序图标注 -->
+  <rect x="30" y="225" width="730" height="100" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="395" y="243" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">内部时序与特性</text>
+  <text x="50" y="262" fill="#334155" font-size="10">• 3级流水线: Phase Accum → ROM Lookup → Amp Scale，每个时钟输出一个新样本</text>
+  <text x="50" y="280" fill="#334155" font-size="10">• 频率分辨率: 50MHz / 2³² ≈ 0.0116 Hz，DDS输出频率 = f_word × 50MHz / 2³²</text>
+  <text x="50" y="298" fill="#334155" font-size="10">• 杂散抑制(SFDR): 取决于ROM深度(1024)和幅度量化(10-bit)，理论SFDR ≈ 60 dB</text>
+  <text x="50" y="316" fill="#334155" font-size="10">• phase_clr=1时相位累加器清零，确保每个扫频步初始相位为0</text>
+
+  <!-- 依赖标注 -->
+  <text x="35" y="355" fill="#888" font-size="9">实例化: dds_phase → sin_rom(IP) → dds_amp | 源文件: src/dds/dds_top.v</text>
+</svg>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#2d5a87"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="420" fill="#f8fafc" rx="6"/>
+
+  <rect x="0" y="0" width="800" height="42" rx="6" fill="url(#titleGrad)"/>
+  <rect x="0" y="32" width="800" height="10" fill="url(#titleGrad)"/>
+  <text x="400" y="27" text-anchor="middle" fill="white" font-size="15" font-weight="bold">sweep_result_store — 频响数据存储器 结构图</text>
+
+  <!-- 写入侧 -->
+  <rect x="30" y="58" width="330" height="170" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="195" y="82" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="bold">写入逻辑 (时序逻辑)</text>
+  <line x1="45" y1="90" x2="345" y2="90" stroke="#93c5fd" stroke-width="0.5"/>
+
+  <text x="50" y="112" fill="#334155" font-size="11" font-weight="bold">输入信号:</text>
+  <text x="50" y="130" fill="#475569" font-size="10">• write_en: 写使能脉冲 (每频点1次)</text>
+  <text x="50" y="148" fill="#475569" font-size="10">• freq_word[31:0]: 频率控制字</text>
+  <text x="50" y="166" fill="#475569" font-size="10">• peak_bin[9:0]: FFT峰值bin</text>
+  <text x="50" y="184" fill="#475569" font-size="10">• h_mag_q16[31:0]: 传递函数幅值</text>
+  <text x="50" y="202" fill="#475569" font-size="10">• h_phase_deg_q8[15:0]: 传递函数相位</text>
+  <text x="50" y="220" fill="#475569" font-size="10">• clear: 清除所有记录 (result_count→0)</text>
+
+  <!-- 写入→寄存器阵列箭头 -->
+  <line x1="360" y1="143" x2="410" y2="143" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 寄存器阵列 -->
+  <rect x="415" y="58" width="240" height="170" rx="8" fill="white" stroke="#333" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="535" y="82" text-anchor="middle" fill="#1e3a5f" font-size="13" font-weight="bold">寄存器阵列 (128条)</text>
+  <line x1="430" y1="90" x2="640" y2="90" stroke="#e2e8f0" stroke-width="0.5"/>
+
+  <!-- 用表格表示4个mem -->
+  <rect x="430" y="98" width="210" height="22" rx="3" fill="#f0fdf4"/>
+  <text x="535" y="114" text-anchor="middle" fill="#15803d" font-size="10">freq_word_mem [0:127] × 32-bit</text>
+  <rect x="430" y="124" width="210" height="22" rx="3" fill="#f0fdf4"/>
+  <text x="535" y="140" text-anchor="middle" fill="#15803d" font-size="10">peak_bin_mem  [0:127] × 10-bit</text>
+  <rect x="430" y="150" width="210" height="22" rx="3" fill="#f0fdf4"/>
+  <text x="535" y="166" text-anchor="middle" fill="#15803d" font-size="10">h_mag_mem     [0:127] × 32-bit</text>
+  <rect x="430" y="176" width="210" height="22" rx="3" fill="#f0fdf4"/>
+  <text x="535" y="192" text-anchor="middle" fill="#15803d" font-size="10">h_phase_mem   [0:127] × 16-bit</text>
+
+  <text x="535" y="218" text-anchor="middle" fill="#888" font-size="9">写入地址 = result_count (自增)</text>
+
+  <!-- 寄存器阵列→读出箭头 -->
+  <line x1="655" y1="143" x2="700" y2="143" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 读出侧 -->
+  <rect x="705" y="58" width="80" height="170" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="745" y="82" text-anchor="middle" fill="#15803d" font-size="11" font-weight="bold">读出</text>
+  <text x="745" y="102" text-anchor="middle" fill="#15803d" font-size="10">组合逻辑</text>
+  <text x="745" y="120" text-anchor="middle" fill="#15803d" font-size="10">零延迟</text>
+  <text x="745" y="140" text-anchor="middle" fill="#15803d" font-size="10">read_index</text>
+  <text x="745" y="156" text-anchor="middle" fill="#15803d" font-size="10">→ 立即</text>
+  <text x="745" y="170" text-anchor="middle" fill="#15803d" font-size="10">输出数据</text>
+
+  <!-- 读写对比表 -->
+  <rect x="30" y="245" width="750" height="160" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="405" y="268" text-anchor="middle" fill="#475569" font-size="12" font-weight="bold">操作模式对比</text>
+
+  <line x1="50" y1="278" x2="760" y2="278" stroke="#cbd5e1" stroke-width="0.5"/>
+
+  <text x="230" y="300" text-anchor="middle" fill="#1e3a5f" font-size="11" font-weight="bold">写入 (每频点1次)</text>
+  <text x="580" y="300" text-anchor="middle" fill="#1e3a5f" font-size="11" font-weight="bold">读取 (分类器批量扫描)</text>
+
+  <text x="60" y="324" fill="#475569" font-size="10">• write_en=1触发, 写入地址=result_count</text>
+  <text x="60" y="344" fill="#475569" font-size="10">• 写入后 result_count 自增1</text>
+  <text x="60" y="364" fill="#475569" font-size="10">• result_count ≥ 128 时停止写入（满）</text>
+  <text x="60" y="384" fill="#475569" font-size="10">• clear=1: result_count=0（逻辑清除）</text>
+
+  <text x="410" y="324" fill="#475569" font-size="10">• read_index直接索引 → 组合逻辑出数据</text>
+  <text x="410" y="344" fill="#475569" font-size="10">• read_index &lt; result_count → read_valid=1</text>
+  <text x="410" y="364" fill="#475569" font-size="10">• read_index ≥ result_count → 输出0 (无效)</text>
+  <text x="410" y="384" fill="#475569" font-size="10">• 无需时钟，零延迟读取（适合遍历）</text>
+
+  <text x="400" y="415" text-anchor="middle" fill="#888" font-size="9">源文件: src/analysis/sweep_result_store.v | 参数: MAX_RESULTS=128</text>
+</svg>

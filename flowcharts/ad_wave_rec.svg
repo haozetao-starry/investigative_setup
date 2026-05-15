@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 620" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#2d5a87"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="820" height="620" fill="#f8fafc" rx="6"/>
+
+  <rect x="0" y="0" width="820" height="42" rx="6" fill="url(#titleGrad)"/>
+  <rect x="0" y="32" width="820" height="10" fill="url(#titleGrad)"/>
+  <text x="410" y="27" text-anchor="middle" fill="white" font-size="15" font-weight="bold">ad_wave_rec — ADC采集记录器 流程图</text>
+
+  <!-- ===== 流程图 ===== -->
+  <!-- 复位 -->
+  <rect x="310" y="55" width="200" height="30" rx="15" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="410" y="75" text-anchor="middle" fill="#334155" font-size="12" font-weight="bold">上电 / 复位 (rst_n=0)</text>
+  <line x1="410" y1="85" x2="410" y2="108" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 初始化 -->
+  <rect x="280" y="110" width="260" height="38" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="410" y="132" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="bold">初始化: wr_addr=0, acq_en=0</text>
+  <line x1="410" y1="148" x2="410" y2="172" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- acq_start? -->
+  <polygon points="410,175 510,218 410,261 310,218" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="410" y="215" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">acq_start?</text>
+  <line x1="310" y1="218" x2="120" y2="218" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="215" y="211" text-anchor="middle" fill="#dc2626" font-size="9">否(空闲)</text>
+  <line x1="410" y1="261" x2="410" y2="286" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="395" y="278" text-anchor="middle" fill="#16a34a" font-size="9">是</text>
+
+  <!-- 启动采集 -->
+  <rect x="270" y="288" width="280" height="50" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="410" y="308" text-anchor="middle" fill="#15803d" font-size="11" font-weight="bold">启动采集</text>
+  <text x="410" y="322" text-anchor="middle" fill="#15803d" font-size="10">wr_addr=0, acq_en=1, buf_full=0</text>
+  <text x="410" y="335" text-anchor="middle" fill="#15803d" font-size="9">smp_cnt=0, otr_flag=0</text>
+  <line x1="410" y1="338" x2="410" y2="365" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- ad_clk上升沿? -->
+  <polygon points="410,368 530,415 410,462 290,415" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="410" y="412" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">acq_en &amp;&amp; ad_clk_reg=1?</text>
+  <line x1="290" y1="415" x2="590" y2="415" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="440" y="408" text-anchor="middle" fill="#dc2626" font-size="9">否(等待ad_clk上升沿)</text>
+  <line x1="410" y1="462" x2="410" y2="488" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="395" y="478" text-anchor="middle" fill="#16a34a" font-size="9">是(时钟沿)</text>
+
+  <!-- 双通道同步锁存 -->
+  <rect x="250" y="490" width="320" height="55" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="410" y="510" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="bold">双通道同步锁存</text>
+  <text x="410" y="525" text-anchor="middle" fill="#475569" font-size="10">ad_data_reg = ad_data_sync2(2级同步后)</text>
+  <text x="410" y="540" text-anchor="middle" fill="#475569" font-size="10">ref_data_reg = ref_data_in (dds_wave)</text>
+  <line x1="410" y1="545" x2="410" y2="572" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- smp_div判断 -->
+  <polygon points="410,575 520,618 410,661 300,618" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="410" y="615" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">smp_cnt &gt;= smp_div?</text>
+  <line x1="300" y1="618" x2="120" y2="618" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="210" y="611" text-anchor="middle" fill="#dc2626" font-size="9">否</text>
+  <rect x="55" y="603" width="120" height="28" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="115" y="621" text-anchor="middle" fill="#475569" font-size="9">smp_cnt++(跳过)</text>
+  <line x1="410" y1="661" x2="410" y2="688" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="395" y="678" text-anchor="middle" fill="#16a34a" font-size="9">是</text>
+
+  <!-- 写入RAM -->
+  <rect x="270" y="690" width="280" height="50" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="410" y="710" text-anchor="middle" fill="#15803d" font-size="11" font-weight="bold">写入双端口RAM</text>
+  <text x="410" y="724" text-anchor="middle" fill="#15803d" font-size="10">ram_wren=1, smp_cnt=0</text>
+  <text x="410" y="737" text-anchor="middle" fill="#15803d" font-size="9">响应RAM: ad_data_reg → 参考RAM: ref_data_reg</text>
+  <line x1="410" y1="740" x2="410" y2="768" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- wr_addr==1023? -->
+  <polygon points="410,771 520,814 410,857 300,814" fill="#fef3c7" stroke="#d97706" stroke-width="1.3"/>
+  <text x="410" y="811" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">wr_addr == 1023?</text>
+  <line x1="300" y1="814" x2="120" y2="814" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="210" y="807" text-anchor="middle" fill="#dc2626" font-size="9">否 → wr_addr++</text>
+  <line x1="410" y1="857" x2="410" y2="882" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="395" y="872" text-anchor="middle" fill="#16a34a" font-size="9">是(满)</text>
+
+  <!-- 完成 -->
+  <rect x="300" y="883" width="220" height="36" rx="18" fill="#22c55e" filter="url(#shadow)"/>
+  <text x="410" y="906" text-anchor="middle" fill="white" font-size="12" font-weight="bold">buf_full=1, acq_en=0</text>
+
+  <!-- 右侧说明 -->
+  <rect x="590" y="55" width="215" height="760" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="697" y="75" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">关键设计点</text>
+  <line x1="605" y1="82" x2="790" y2="82" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="600" y="102" fill="#334155" font-size="10" font-weight="bold">① 2级同步器</text>
+  <text x="600" y="118" fill="#475569" font-size="9">ADC为异步时钟域</text>
+  <text x="600" y="133" fill="#475569" font-size="9">ad_data → sync1 → sync2</text>
+  <text x="600" y="148" fill="#475569" font-size="9">消除亚稳态风险</text>
+  <text x="600" y="170" fill="#334155" font-size="10" font-weight="bold">② 自适应采样分频</text>
+  <text x="600" y="186" fill="#475569" font-size="9">smp_div由acq_ctrl计算</text>
+  <text x="600" y="201" fill="#475569" font-size="9">高频: div=0 (25MHz)</text>
+  <text x="600" y="216" fill="#475569" font-size="9">中频: div=9 (2.5MHz)</text>
+  <text x="600" y="231" fill="#475569" font-size="9">低频: div=99/999</text>
+  <text x="600" y="253" fill="#334155" font-size="10" font-weight="bold">③ 双RAM并行架构</text>
+  <text x="600" y="269" fill="#475569" font-size="9">参考RAM: 存dds_wave</text>
+  <text x="600" y="284" fill="#475569" font-size="9">响应RAM: 存ad_data</text>
+  <text x="600" y="299" fill="#475569" font-size="9">同时写入，同时读取</text>
+  <text x="600" y="321" fill="#334155" font-size="10" font-weight="bold">④ 超量程检测</text>
+  <text x="600" y="337" fill="#475569" font-size="9">ad_otr经2级同步</text>
+  <text x="600" y="352" fill="#475569" font-size="9">otr_flag=1表示超量程</text>
+  <text x="600" y="374" fill="#334155" font-size="10" font-weight="bold">⑤ ADC时钟生成</text>
+  <text x="600" y="390" fill="#475569" font-size="9">ad_clk = clk / 2</text>
+  <text x="600" y="405" fill="#475569" font-size="9">50MHz → 25MHz</text>
+
+  <text x="697" y="800" text-anchor="middle" fill="#888" font-size="9">源文件: src/adc_acq/ad_wave_rec.v</text>
+</svg>

@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 820" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/>
+    </marker>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#2d5a87"/>
+    </linearGradient>
+    <linearGradient id="idenGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="reprGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1100" height="820" fill="#f8fafc" rx="8"/>
+
+  <!-- ===== 顶层大框 ===== -->
+  <rect x="20" y="10" width="1060" height="800" rx="10" fill="none" stroke="#1e3a5f" stroke-width="2.5" stroke-dasharray="8,3"/>
+  <rect x="20" y="10" width="1060" height="38" rx="10" fill="url(#headerGrad)"/>
+  <rect x="20" y="38" width="1060" height="10" fill="url(#headerGrad)"/>
+  <text x="550" y="35" text-anchor="middle" fill="white" font-size="16" font-weight="bold">investigative_setup（顶层模块）</text>
+
+  <!-- ===== acq_ctrl ===== -->
+  <rect x="370" y="62" width="360" height="38" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="550" y="80" text-anchor="middle" fill="#92400e" font-size="14" font-weight="bold">acq_ctrl 主控状态机</text>
+  <text x="550" y="93" text-anchor="middle" fill="#92400e" font-size="11">（6状态FSM，流水线编排）</text>
+
+  <!-- ===== 辨识阶段大框 ===== -->
+  <rect x="30" y="115" width="730" height="680" rx="10" fill="url(#idenGrad)" stroke="#2563eb" stroke-width="1.8"/>
+  <text x="395" y="138" text-anchor="middle" fill="#1e40af" font-size="15" font-weight="bold">辨识阶段</text>
+
+  <!-- ===== 复现阶段大框 ===== -->
+  <rect x="775" y="115" width="295" height="460" rx="10" fill="url(#reprGrad)" stroke="#16a34a" stroke-width="1.8"/>
+  <text x="922" y="138" text-anchor="middle" fill="#15803d" font-size="15" font-weight="bold">复现阶段</text>
+
+  <!-- ========== 辨识阶段内部模块 ========== -->
+
+  <!-- dds_sweep_ctrl -->
+  <rect x="55" y="152" width="175" height="40" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="142" y="172" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">dds_sweep_ctrl</text>
+  <text x="142" y="185" text-anchor="middle" fill="#666" font-size="10">扫频控制器</text>
+
+  <!-- dds_top -->
+  <rect x="280" y="152" width="140" height="40" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="350" y="172" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">dds_top</text>
+  <text x="350" y="185" text-anchor="middle" fill="#666" font-size="10">DDS信号源</text>
+
+  <!-- 箭头 dds_sweep -> dds_top -->
+  <line x1="230" y1="172" x2="275" y2="172" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- da_wave_send (辨识) -->
+  <rect x="55" y="230" width="145" height="40" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="127" y="250" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">da_wave_send</text>
+  <text x="127" y="263" text-anchor="middle" fill="#666" font-size="10">DAC发送接口</text>
+
+  <!-- ad_wave_rec -->
+  <rect x="350" y="230" width="160" height="40" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="430" y="250" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">ad_wave_rec</text>
+  <text x="430" y="263" text-anchor="middle" fill="#666" font-size="10">ADC采集记录器</text>
+
+  <!-- DDR/ADC 标签和箭头 -->
+  <line x1="350" y1="192" x2="200" y2="225" stroke="#333" stroke-width="1.3"/>
+  <line x1="350" y1="192" x2="430" y2="225" stroke="#333" stroke-width="1.3"/>
+
+  <rect x="228" y="228" width="62" height="24" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="259" y="245" text-anchor="middle" fill="#475569" font-size="9">dds_wave</text>
+
+  <!-- 箭头 da_wave_send -> DAC -->
+  <line x1="127" y1="270" x2="127" y2="305" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <rect x="70" y="300" width="55" height="22" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="97" y="316" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="bold">DAC</text>
+
+  <!-- 箭头 ADC -> ad_wave_rec -->
+  <rect x="475" y="300" width="55" height="22" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="502" y="316" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="bold">ADC</text>
+  <line x1="475" y1="311" x2="430" y2="275" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 待测滤波器 -->
+  <rect x="145" y="340" width="350" height="28" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="320" y="358" text-anchor="middle" fill="#991b1b" font-size="11" font-weight="bold">待测滤波器（DUT）</text>
+
+  <!-- DAC -> DUT -> ADC 箭头 -->
+  <line x1="127" y1="322" x2="127" y2="354" stroke="#333" stroke-width="1.3"/>
+  <line x1="127" y1="354" x2="320" y2="354" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <line x1="495" y1="354" x2="502" y2="322" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="225" y="348" text-anchor="middle" fill="#666" font-size="9">激励信号</text>
+  <text x="410" y="348" text-anchor="middle" fill="#666" font-size="9">响应信号</text>
+
+  <!-- fft_processor -->
+  <rect x="240" y="400" width="320" height="45" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="400" y="420" text-anchor="middle" fill="#92400e" font-size="13" font-weight="bold">fft_processor（1024点FFT频谱分析）</text>
+  <text x="400" y="436" text-anchor="middle" fill="#92400e" font-size="10">计算传递函数 H_mag(Q16) + H_phase(Q8)</text>
+
+  <!-- ad_wave_rec -> fft -->
+  <line x1="430" y1="270" x2="400" y2="395" stroke="#333" stroke-width="1.3"/>
+  <rect x="395" y="330" width="90" height="22" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="440" y="346" text-anchor="middle" fill="#475569" font-size="9">ref + rsp 数据</text>
+  <line x1="395" y1="352" x2="400" y2="395" stroke="#333" stroke-width="1.3"/>
+
+  <!-- fft -> 分叉 -->
+  <line x1="400" y1="445" x2="400" y2="480" stroke="#333" stroke-width="1.5"/>
+  <line x1="400" y1="480" x2="160" y2="480" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="400" y1="480" x2="640" y2="480" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- RLS 分支 -->
+  <rect x="55" y="490" width="210" height="52" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="160" y="510" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">rls_estimator</text>
+  <text x="160" y="524" text-anchor="middle" fill="#666" font-size="10">RLS参数递推估计</text>
+  <text x="160" y="536" text-anchor="middle" fill="#666" font-size="9">θ = [b0,b1,b2,a1,a2]</text>
+
+  <!-- sweep_result_store 分支 -->
+  <rect x="480" y="490" width="230" height="52" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="595" y="510" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">sweep_result_store</text>
+  <text x="595" y="524" text-anchor="middle" fill="#666" font-size="10">频响数据存储 (128条)</text>
+  <text x="595" y="536" text-anchor="middle" fill="#666" font-size="9">{freq, bin, mag, phase}</text>
+
+  <!-- filter_classifier -->
+  <rect x="480" y="575" width="230" height="45" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="595" y="594" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">filter_classifier</text>
+  <text x="595" y="609" text-anchor="middle" fill="#666" font-size="10">滤波器类型分类 (6种)</text>
+
+  <!-- sweep_store -> classifier -->
+  <line x1="595" y1="542" x2="595" y2="570" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- RLS -> coeff输出 -->
+  <line x1="160" y1="542" x2="160" y2="590" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <rect x="80" y="585" width="160" height="24" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+  <text x="160" y="602" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">coeff_b0~a2 (5×Q16)</text>
+
+  <!-- 辨识完成 -->
+  <line x1="160" y1="609" x2="160" y2="650" stroke="#333" stroke-width="1.3"/>
+  <line x1="595" y1="620" x2="595" y2="650" stroke="#333" stroke-width="1.3"/>
+  <line x1="160" y1="650" x2="595" y2="650" stroke="#333" stroke-width="1.5"/>
+  <rect x="290" y="658" width="220" height="32" rx="8" fill="#22c55e" stroke="#16a34a" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="400" y="672" text-anchor="middle" fill="white" font-size="12" font-weight="bold">辨识完成</text>
+  <text x="400" y="686" text-anchor="middle" fill="white" font-size="10">→ 进入复现阶段</text>
+
+  <!-- 辨识完成 -> 复现 大箭头 -->
+  <line x1="510" y1="674" x2="770" y2="260" stroke="#16a34a" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
+
+  <!-- ========== 复现阶段内部模块 ========== -->
+
+  <!-- dds_top 复现 -->
+  <rect x="800" y="155" width="130" height="40" rx="6" fill="white" stroke="#16a34a" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="865" y="175" text-anchor="middle" fill="#15803d" font-size="12" font-weight="bold">dds_top</text>
+  <text x="865" y="188" text-anchor="middle" fill="#666" font-size="10">DDS信号源</text>
+
+  <!-- coeff 输入到复现 -->
+  <rect x="800" y="210" width="240" height="22" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <text x="920" y="225" text-anchor="middle" fill="#15803d" font-size="10">coeff_b0,b1,b2,a1,a2 (来自辨识)</text>
+
+  <!-- biquad_emulator -->
+  <rect x="810" y="250" width="200" height="45" rx="6" fill="white" stroke="#16a34a" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="910" y="270" text-anchor="middle" fill="#15803d" font-size="12" font-weight="bold">biquad_emulator</text>
+  <text x="910" y="285" text-anchor="middle" fill="#666" font-size="10">双二阶IIR (Direct Form I)</text>
+
+  <!-- dds_top -> biquad -->
+  <line x1="865" y1="195" x2="865" y2="245" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- biquad -> da_wave_send -->
+  <rect x="810" y="340" width="200" height="40" rx="6" fill="white" stroke="#16a34a" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="910" y="360" text-anchor="middle" fill="#15803d" font-size="12" font-weight="bold">da_wave_send</text>
+  <text x="910" y="373" text-anchor="middle" fill="#666" font-size="10">DAC发送接口</text>
+
+  <line x1="910" y1="295" x2="910" y2="335" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <rect x="855" y="305" width="110" height="20" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="910" y="320" text-anchor="middle" fill="#475569" font-size="9">biquad_wave(8)</text>
+
+  <!-- 复现 DAC -->
+  <line x1="910" y1="380" x2="910" y2="420" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <rect x="855" y="418" width="55" height="22" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="882" y="434" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="bold">DAC</text>
+
+  <!-- 固定振荡器 -->
+  <rect x="800" y="470" width="230" height="32" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="915" y="486" text-anchor="middle" fill="#166534" font-size="10">输出: 滤波后的模拟信号</text>
+  <text x="915" y="498" text-anchor="middle" fill="#166534" font-size="9">(与DUT行为一致)</text>
+
+  <!-- ===== 信号选择器说明 ===== -->
+  <rect x="55" y="710" width="650" height="80" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="380" y="728" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">数据选择逻辑（顶层）</text>
+  <text x="380" y="746" text-anchor="middle" fill="#475569" font-size="10" font-family="monospace">assign da_src_data = mimic_mode ? biquad_wave : dds_wave;</text>
+  <line x1="190" y1="758" x2="570" y2="758" stroke="#94a3b8" stroke-width="0.5"/>
+  <text x="230" y="774" text-anchor="middle" fill="#666" font-size="10">辨识模式 (mimic_mode=0): DDS直出 → DAC</text>
+  <text x="530" y="774" text-anchor="middle" fill="#666" font-size="10">复现模式 (mimic_mode=1): biquad滤波 → DAC</text>
+
+  <!-- ===== 图例 ===== -->
+  <rect x="780" y="710" width="200" height="80" rx="6" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="880" y="728" text-anchor="middle" fill="#334155" font-size="10" font-weight="bold">图例</text>
+  <rect x="790" y="738" width="20" height="12" rx="2" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+  <text x="818" y="748" fill="#475569" font-size="9">辨识模块</text>
+  <rect x="885" y="738" width="20" height="12" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <text x="913" y="748" fill="#475569" font-size="9">复现模块</text>
+  <rect x="790" y="758" width="20" height="12" rx="2" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+  <text x="818" y="768" fill="#475569" font-size="9">外部器件</text>
+  <rect x="885" y="758" width="20" height="12" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+  <text x="913" y="768" fill="#475569" font-size="9">核心处理/控制</text>
+</svg>
