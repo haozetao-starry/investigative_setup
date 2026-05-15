@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 720" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#2d5a87"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="880" height="720" fill="#f8fafc" rx="6"/>
+
+  <rect x="0" y="0" width="880" height="42" rx="6" fill="url(#titleGrad)"/>
+  <rect x="0" y="32" width="880" height="10" fill="url(#titleGrad)"/>
+  <text x="440" y="27" text-anchor="middle" fill="white" font-size="15" font-weight="bold">fft_processor — FFT频谱分析处理器 流程图</text>
+
+  <!-- 左边：主流程 -->
+  <!-- ST_IDLE -->
+  <rect x="30" y="55" width="170" height="36" rx="6" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
+  <text x="115" y="77" text-anchor="middle" fill="#4338ca" font-size="12" font-weight="bold">ST_IDLE (等待)</text>
+
+  <line x1="115" y1="91" x2="115" y2="112" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 等待fft_start_en -->
+  <polygon points="115,115 200,145 115,175 30,145" fill="#fef3c7" stroke="#d97706" stroke-width="1.3"/>
+  <text x="115" y="143" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">fft_start_en?</text>
+  <line x1="30" y1="145" x2="30" y2="73" stroke="#dc2626" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="115" y1="175" x2="115" y2="195" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 初始化 -->
+  <rect x="120" y="197" width="160" height="40" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3"/>
+  <text x="200" y="214" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">初始化 + 清空寄存器</text>
+  <text x="200" y="229" text-anchor="middle" fill="#1e40af" font-size="9">frame_sel=0, req_addr=0</text>
+
+  <line x1="200" y1="237" x2="200" y2="260" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- Frame 0 读取 -->
+  <rect x="25" y="262" width="350" height="48" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="200" y="281" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="bold">Frame 0: 参考信号FFT处理</text>
+  <text x="200" y="297" text-anchor="middle" fill="#475569" font-size="10">逐bin(1~511)搜索 max(I²+Q²)</text>
+  <text x="200" y="310" text-anchor="middle" fill="#888" font-size="9">记录 ref_mag_raw, ref_exp, ref_real, ref_imag</text>
+
+  <line x1="200" y1="310" x2="200" y2="335" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- Frame 0 EOP -->
+  <polygon points="200,338 285,368 200,398 115,368" fill="#fef3c7" stroke="#d97706" stroke-width="1.3"/>
+  <text x="200" y="366" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">source_eop?</text>
+  <text x="200" y="380" text-anchor="middle" fill="#92400e" font-size="9">(Frame 0 结束)</text>
+  <line x1="200" y1="398" x2="200" y2="420" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 切换Frame -->
+  <rect x="120" y="422" width="160" height="36" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.3"/>
+  <text x="200" y="440" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">切换: frame_sel=1</text>
+  <text x="200" y="454" text-anchor="middle" fill="#15803d" font-size="9">req_addr=0, input_done=0</text>
+
+  <line x1="200" y1="458" x2="200" y2="480" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- Frame 1 读取 -->
+  <rect x="25" y="482" width="350" height="48" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="200" y="501" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="bold">Frame 1: 响应信号FFT处理</text>
+  <text x="200" y="517" text-anchor="middle" fill="#475569" font-size="10">在相同bin(peak_freq_idx)取响应I/Q</text>
+  <text x="200" y="530" text-anchor="middle" fill="#888" font-size="9">记录 rsp_mag_raw, rsp_exp, rsp_real, rsp_imag</text>
+
+  <line x1="200" y1="530" x2="200" y2="555" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- Frame 1 EOP -->
+  <polygon points="200,558 285,588 200,618 115,588" fill="#fef3c7" stroke="#d97706" stroke-width="1.3"/>
+  <text x="200" y="586" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">source_eop?</text>
+  <text x="200" y="600" text-anchor="middle" fill="#92400e" font-size="9">(Frame 1 结束)</text>
+  <line x1="200" y1="618" x2="200" y2="643" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 计算传递函数 -->
+  <rect x="80" y="645" width="240" height="55" rx="8" fill="#22c55e" stroke="#15803d" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="200" y="665" text-anchor="middle" fill="white" font-size="11" font-weight="bold">计算传递函数 + 输出结果</text>
+  <text x="200" y="681" text-anchor="middle" fill="white" font-size="9">H_mag (Q16), H_phase (Q8°)</text>
+  <text x="200" y="695" text-anchor="middle" fill="white" font-size="9">fft_done=1 → 回到IDLE</text>
+
+  <!-- 右侧: 算法说明 -->
+  <rect x="420" y="55" width="440" height="645" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="640" y="75" text-anchor="middle" fill="#475569" font-size="12" font-weight="bold">核心算法函数</text>
+  <line x1="435" y1="83" x2="845" y2="83" stroke="#cbd5e1" stroke-width="0.5"/>
+
+  <text x="435" y="104" fill="#1e3a5f" font-size="11" font-weight="bold">① mag_sq_from_iq: 计算幅值平方 I²+Q²</text>
+  <text x="445" y="120" fill="#475569" font-size="9">用于在512个频点中搜索幅值峰值</text>
+
+  <text x="435" y="148" fill="#1e3a5f" font-size="11" font-weight="bold">② apply_exp_to_mag: 块浮点指数还原</text>
+  <text x="445" y="164" fill="#475569" font-size="9">FFT输出为block-floating-point格式 (I/Q + 共享指数exp)</text>
+  <text x="445" y="180" fill="#475569" font-size="9">mag_shifted = mag_raw × 2^(exp×2), 将压缩数据还原为真实幅值</text>
+
+  <text x="435" y="210" fill="#1e3a5f" font-size="11" font-weight="bold">③ mag_ratio_q16_fn: 幅值比 H_mag = |Rsp|/|Ref|</text>
+  <text x="445" y="226" fill="#475569" font-size="9">① 对齐两个信号指数: 将较小者左移使指数一致</text>
+  <text x="445" y="242" fill="#475569" font-size="9">② 除法: (num_scaled × 2^16) / den_scaled → Q16定点结果</text>
+  <text x="445" y="258" fill="#475569" font-size="9">③ 若分母为0 → 返回0 (防止除零异常)</text>
+
+  <text x="435" y="290" fill="#1e3a5f" font-size="11" font-weight="bold">④ atan2_deg_q8_fn: 反正切函数 (线性逼近)</text>
+  <text x="445" y="306" fill="#475569" font-size="9">区间: 将360°分为8个八分象限 (0°/45°/90°/135°...)</text>
+  <text x="445" y="322" fill="#475569" font-size="9">逼近: angle = π/4 × (min(|x|,|y|) / max(|x|,|y|))</text>
+  <text x="445" y="338" fill="#475569" font-size="9">修正: 根据象限加0/π/2π偏置 → 最终角度 ∈ [-180°,+180°]</text>
+  <text x="445" y="354" fill="#475569" font-size="9">输出: Q8定点 (LSB = 1/256°, 180° = 46080)</text>
+
+  <text x="435" y="386" fill="#1e3a5f" font-size="11" font-weight="bold">⑤ wrap_phase_q8_fn: 相位缠绕修正</text>
+  <text x="445" y="402" fill="#475569" font-size="9">H_phase = atan2(rsp) - atan2(ref)</text>
+  <text x="445" y="418" fill="#475569" font-size="9">若 &gt; +180°: 减360°; 若 &lt; -180°: 加360°</text>
+
+  <line x1="435" y1="436" x2="845" y2="436" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="640" y="458" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">Altera FFT MegaCore 配置</text>
+
+  <text x="445" y="480" fill="#334155" font-size="10">• 变换点数: 1024 pt</text>
+  <text x="445" y="498" fill="#334155" font-size="10">• 数据流架构: Streaming (连续流式)</text>
+  <text x="445" y="516" fill="#334155" font-size="10">• I/O 方向: Bi-directional (双向)</text>
+  <text x="445" y="534" fill="#334155" font-size="10">• 数据格式: Block Floating Point (块浮点)</text>
+  <text x="445" y="552" fill="#334155" font-size="10">• 输入位宽: 8-bit Real + 8-bit Imag</text>
+  <text x="445" y="570" fill="#334155" font-size="10">• 输出位宽: 8-bit + 5-bit Exponent</text>
+  <text x="445" y="588" fill="#334155" font-size="10">• 输入数据: 去直流偏置 (data - 128), 虚部固定为0</text>
+  <text x="445" y="606" fill="#334155" font-size="10">• 变换方向: 仅正向FFT (inverse=0)</text>
+
+  <line x1="435" y1="624" x2="845" y2="624" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="640" y="646" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">输出信号</text>
+  <text x="445" y="666" fill="#334155" font-size="10">peak_freq_idx[9:0] | peak_mag[31:0] | peak_exp[5:0] | h_mag_q16[31:0] | h_phase_deg_q8[15:0]</text>
+  <text x="445" y="684" fill="#334155" font-size="10">ref_mag[31:0] | rsp_mag[31:0] | ref_phase_deg_q8[15:0] | rsp_phase_deg_q8[15:0]</text>
+
+  <text x="640" y="715" text-anchor="middle" fill="#888" font-size="9">源文件: src/fft/fft_processor.v | 实例化Altera FFT IP核</text>
+</svg>

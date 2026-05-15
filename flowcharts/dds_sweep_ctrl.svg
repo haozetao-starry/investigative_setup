@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 920" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#2d5a87"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="720" height="720" fill="#f8fafc" rx="6"/>
+
+  <!-- 标题 -->
+  <rect x="0" y="0" width="720" height="42" rx="6" fill="url(#titleGrad)"/>
+  <rect x="0" y="32" width="720" height="10" fill="url(#titleGrad)"/>
+  <text x="360" y="27" text-anchor="middle" fill="white" font-size="15" font-weight="bold">dds_sweep_ctrl — 扫频控制器 软件流程图</text>
+
+  <!-- ===== 流程图 ===== -->
+  <!-- 复位 -->
+  <rect x="260" y="58" width="200" height="34" rx="17" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="360" y="79" text-anchor="middle" fill="#334155" font-size="12" font-weight="bold">上电 / 复位 (rst_n=0)</text>
+  <!-- 箭头 -->
+  <line x1="360" y1="92" x2="360" y2="115" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 初始化 -->
+  <rect x="240" y="118" width="240" height="48" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="360" y="139" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">初始化</text>
+  <text x="360" y="155" text-anchor="middle" fill="#1e40af" font-size="10">f_word=START_WORD, dwell_cnt=0</text>
+  <line x1="360" y1="166" x2="360" y2="195" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- restart判断 -->
+  <polygon points="360,198 450,242 360,286 270,242" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="360" y="240" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">restart?</text>
+  <!-- 是 -->
+  <line x1="450" y1="242" x2="530" y2="242" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="490" y="235" text-anchor="middle" fill="#dc2626" font-size="9">是</text>
+  <rect x="535" y="222" width="160" height="40" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="615" y="240" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="bold">重置</text>
+  <text x="615" y="254" text-anchor="middle" fill="#991b1b" font-size="9">f_word=START_WORD</text>
+  <!-- 否 -->
+  <line x1="360" y1="286" x2="360" y2="315" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="345" y="305" text-anchor="middle" fill="#16a34a" font-size="9">否</text>
+
+  <!-- sweep_en -->
+  <polygon points="360,318 450,362 360,406 270,362" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="360" y="360" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">sweep_en?</text>
+  <line x1="270" y1="362" x2="100" y2="362" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="185" y="355" text-anchor="middle" fill="#dc2626" font-size="9">否</text>
+  <rect x="60" y="347" width="100" height="30" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="110" y="366" text-anchor="middle" fill="#475569" font-size="10">保持空闲</text>
+  <line x1="360" y1="406" x2="360" y2="435" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="345" y="425" text-anchor="middle" fill="#16a34a" font-size="9">是</text>
+
+  <!-- sweep_busy=1 -->
+  <rect x="260" y="436" width="200" height="30" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3"/>
+  <text x="360" y="455" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="bold">sweep_busy = 1</text>
+  <line x1="360" y1="466" x2="360" y2="495" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- dwell判断 -->
+  <polygon points="360,498 460,545 360,592 260,545" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="360" y="543" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">dwell_cnt &gt;=</text>
+  <text x="360" y="556" text-anchor="middle" fill="#92400e" font-size="10">STEP_PERIOD_CLKS-1?</text>
+  <line x1="260" y1="545" x2="120" y2="545" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="190" y="538" text-anchor="middle" fill="#dc2626" font-size="9">否(继续等待)</text>
+  <rect x="55" y="530" width="110" height="30" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="110" y="549" text-anchor="middle" fill="#475569" font-size="10">dwell_cnt++</text>
+  <line x1="360" y1="592" x2="360" y2="620" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="345" y="610" text-anchor="middle" fill="#16a34a" font-size="9">是(时间到)</text>
+
+  <!-- 步进动作 -->
+  <rect x="230" y="622" width="260" height="55" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="360" y="640" text-anchor="middle" fill="#15803d" font-size="11" font-weight="bold">步进动作</text>
+  <text x="360" y="655" text-anchor="middle" fill="#15803d" font-size="10">dwell_cnt=0, step_sync=1</text>
+  <text x="360" y="669" text-anchor="middle" fill="#15803d" font-size="9">若RESET_PHASE: phase_clr=1</text>
+  <line x1="360" y1="677" x2="360" y2="700" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 频率判断 -->
+  <polygon points="360,703 460,750 360,797 260,750" fill="#fef3c7" stroke="#d97706" stroke-width="1.3"/>
+  <text x="360" y="748" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">f_word &gt;= STOP_WORD?</text>
+  <!-- 否 -->
+  <line x1="260" y1="750" x2="570" y2="750" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="415" y="743" text-anchor="middle" fill="#dc2626" font-size="9">否 → f_word += STEP_WORD</text>
+  <line x1="570" y1="750" x2="570" y2="498" stroke="#dc2626" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="570" y1="498" x2="510" y2="498" stroke="#dc2626" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- 是 -->
+  <line x1="460" y1="750" x2="510" y2="750" stroke="#16a34a" stroke-width="1.3"/>
+  <text x="485" y="743" text-anchor="middle" fill="#16a34a" font-size="9">是</text>
+
+  <!-- sweep_done -->
+  <rect x="515" y="730" width="180" height="40" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="605" y="747" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="bold">sweep_done = 1</text>
+  <text x="605" y="761" text-anchor="middle" fill="#991b1b" font-size="9">REPEAT? → 回START_WORD</text>
+
+  <!-- 参数说明框 -->
+  <rect x="15" y="815" width="690" height="80" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="360" y="833" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">关键参数</text>
+  <text x="40" y="852" fill="#334155" font-size="10">CLK_FREQ_HZ=50M | START=100Hz | STOP=10kHz | STEP=100Hz | STEP_PERIOD=2,500,000clk(50ms) | REPEAT_SWEEP=1 | RESET_PHASE=1</text>
+  <text x="40" y="872" fill="#334155" font-size="10">f_word = freq × 2³² / 50MHz   |   100频点 × 50ms = 5s 完整周期   |   step_sync脉冲同步下游模块</text>
+  <text x="40" y="890" fill="#334155" font-size="10">输出信号: f_word(32-bit), phase_clr, step_sync, sweep_busy, sweep_done</text>
+</svg>

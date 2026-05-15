@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 700" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#2d5a87"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="880" height="700" fill="#f8fafc" rx="6"/>
+
+  <rect x="0" y="0" width="880" height="42" rx="6" fill="url(#titleGrad)"/>
+  <rect x="0" y="32" width="880" height="10" fill="url(#titleGrad)"/>
+  <text x="440" y="27" text-anchor="middle" fill="white" font-size="15" font-weight="bold">rls_estimator — RLS参数递推估计器 流程图（完整RLS版）</text>
+
+  <!-- ===== 主流程图 ===== -->
+  <!-- 复位/清除 -->
+  <rect x="300" y="55" width="240" height="30" rx="15" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="420" y="75" text-anchor="middle" fill="#334155" font-size="12" font-weight="bold">复位 / model_clear</text>
+
+  <line x1="420" y1="85" x2="420" y2="105" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 初始化 -->
+  <rect x="220" y="107" width="400" height="50" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="420" y="126" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="bold">初始化</text>
+  <text x="420" y="142" text-anchor="middle" fill="#1e40af" font-size="10">θ(0)=[1,0,0,0,0]ᵀ  P(0)=δ⁻¹·I₅  frame_count=0</text>
+
+  <line x1="420" y1="157" x2="420" y2="178" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- rls_start_en? -->
+  <polygon points="420,181 520,217 420,253 320,217" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="420" y="215" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">rls_start_en?</text>
+  <line x1="320" y1="217" x2="120" y2="217" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="220" y="210" text-anchor="middle" fill="#dc2626" font-size="9">否(空闲等待)</text>
+  <line x1="420" y1="253" x2="420" y2="278" stroke="#16a34a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="405" y="270" text-anchor="middle" fill="#16a34a" font-size="9">是</text>
+
+  <!-- 构造回归向量 -->
+  <rect x="240" y="280" width="360" height="38" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="420" y="296" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">Step 1: 构造复回归向量 φ(ω_k)</text>
+  <text x="420" y="312" text-anchor="middle" fill="#15803d" font-size="9">φ=[1, e⁻ʲω, e⁻²ʲω, -H·e⁻ʲω, -H·e⁻²ʲω]ᵀ, frame_count++</text>
+
+  <line x1="420" y1="318" x2="420" y2="340" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- Kalman增益 -->
+  <rect x="240" y="342" width="360" height="36" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="420" y="358" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">Step 2: 计算Kalman增益 K(k)</text>
+  <text x="420" y="372" text-anchor="middle" fill="#475569" font-size="9">K(k) = P(k-1)·φ(k) / [λ + φᵀ(k)·P(k-1)·φ(k)]</text>
+
+  <line x1="420" y1="378" x2="420" y2="400" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 先验误差+参数更新 -->
+  <rect x="240" y="402" width="360" height="36" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="420" y="418" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">Step 3: 计算先验误差 + 参数更新</text>
+  <text x="420" y="432" text-anchor="middle" fill="#475569" font-size="9">e(k)=y(k)-φᵀ(k)θ(k-1)    θ(k)=θ(k-1)+K(k)·e(k)</text>
+
+  <line x1="420" y1="438" x2="420" y2="460" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 协方差更新 -->
+  <rect x="240" y="462" width="360" height="36" rx="6" fill="white" stroke="#2563eb" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="420" y="478" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">Step 4: 更新协方差矩阵 P(k)</text>
+  <text x="420" y="492" text-anchor="middle" fill="#475569" font-size="9">P(k) = [I - K(k)·φᵀ(k)] · P(k-1) / λ</text>
+
+  <line x1="420" y1="498" x2="420" y2="522" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- frame_last? -->
+  <polygon points="420,525 520,565 420,605 320,565" fill="#fef3c7" stroke="#d97706" stroke-width="1.3" filter="url(#shadow)"/>
+  <text x="420" y="563" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">frame_last?</text>
+
+  <line x1="320" y1="565" x2="120" y2="565" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="220" y="558" text-anchor="middle" fill="#dc2626" font-size="9">否 → 返回等待下一帧</text>
+  <line x1="120" y1="565" x2="120" y2="195" stroke="#dc2626" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="120" y1="195" x2="315" y2="195" stroke="#dc2626" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <line x1="420" y1="605" x2="420" y2="630" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="405" y="622" text-anchor="middle" fill="#16a34a" font-size="9">是(最后频点)</text>
+
+  <!-- 最终输出 -->
+  <rect x="230" y="632" width="380" height="48" rx="8" fill="#22c55e" stroke="#15803d" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="420" y="652" text-anchor="middle" fill="white" font-size="11" font-weight="bold">输出最终估计结果</text>
+  <text x="420" y="668" text-anchor="middle" fill="white" font-size="10">coeff_b0~a2 = θ(N)   |   MSE = 拟合均方误差   |   rls_done=1</text>
+
+  <!-- 右侧: 公式说明 -->
+  <rect x="640" y="55" width="225" height="630" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="752" y="78" text-anchor="middle" fill="#475569" font-size="12" font-weight="bold">数学模型</text>
+  <line x1="655" y1="86" x2="850" y2="86" stroke="#cbd5e1" stroke-width="0.5"/>
+
+  <text x="655" y="108" fill="#1e3a5f" font-size="10" font-weight="bold">系统模型 (Biquad)</text>
+  <text x="655" y="124" fill="#475569" font-size="9" font-family="monospace">     b0+b1z⁻¹+b2z⁻²</text>
+  <text x="655" y="140" fill="#475569" font-size="9" font-family="monospace">H(z)=─────────────</text>
+  <text x="655" y="156" fill="#475569" font-size="9" font-family="monospace">      1+a1z⁻¹+a2z⁻²</text>
+
+  <text x="655" y="186" fill="#1e3a5f" font-size="10" font-weight="bold">线性回归形式</text>
+  <text x="655" y="202" fill="#475569" font-size="9" font-family="monospace">φᵀθ = y</text>
+  <text x="655" y="218" fill="#475569" font-size="9" font-family="monospace">φ = [1, e⁻ʲω, e⁻²ʲω,</text>
+  <text x="655" y="234" fill="#475569" font-size="9" font-family="monospace">     -He⁻ʲω, -He⁻²ʲω]</text>
+  <text x="655" y="250" fill="#475569" font-size="9" font-family="monospace">θ = [b0,b1,b2,a1,a2]ᵀ</text>
+  <text x="655" y="266" fill="#475569" font-size="9" font-family="monospace">y = H_meas(ω)</text>
+
+  <line x1="655" y1="280" x2="850" y2="280" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="752" y="300" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">初始条件</text>
+  <text x="655" y="318" fill="#334155" font-size="9">θ(0) = [1,0,0,0,0]ᵀ (直通)</text>
+  <text x="655" y="334" fill="#334155" font-size="9">P(0) = δ⁻¹·I₅, δ=0.01</text>
+  <text x="655" y="350" fill="#334155" font-size="9">λ = 0.99 (遗忘因子)</text>
+  <text x="655" y="366" fill="#334155" font-size="9">待估参数: 5个 (θ∈R⁵)</text>
+  <text x="655" y="382" fill="#334155" font-size="9">每频点提供2个方程(Re+Im)</text>
+  <text x="655" y="398" fill="#334155" font-size="9">100频点×2=200方程 → 超定</text>
+
+  <line x1="655" y1="416" x2="850" y2="416" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="752" y="436" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">遗忘因子 λ 选取</text>
+
+  <text x="655" y="458" fill="#334155" font-size="9">λ=1.00: 无遗忘 (批处理等价)</text>
+  <text x="655" y="476" fill="#334155" font-size="9">λ=0.99: 微遗忘 (默认推荐)</text>
+  <text x="655" y="494" fill="#334155" font-size="9">λ=0.95: 快速遗忘 (时变跟踪)</text>
+  <text x="655" y="518" fill="#666" font-size="9">λ=0.99时, 旧数据经k帧后</text>
+  <text x="655" y="534" fill="#666" font-size="9">权重为 0.99ᵏ ≈ e⁻⁰·⁰¹ᵏ</text>
+  <text x="655" y="550" fill="#666" font-size="9">100帧后~37%权重保留</text>
+
+  <line x1="655" y1="568" x2="850" y2="568" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="752" y="588" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">MSE质量评估公式</text>
+  <text x="655" y="608" fill="#475569" font-size="9" font-family="monospace">MSE = E[H²] − (E[H])²</text>
+  <text x="655" y="626" fill="#475569" font-size="9">即增益方差，衡量频响平坦度</text>
+  <text x="655" y="648" fill="#475569" font-size="9">MSE &gt; 26,214,400 → 不合格</text>
+
+  <text x="752" y="692" text-anchor="middle" fill="#888" font-size="9">源文件: src/analysis/rls_estimator.v</text>
+</svg>

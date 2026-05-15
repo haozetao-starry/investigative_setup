@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 720" font-family="SimHei, Microsoft YaHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#333"/></marker>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#2d5a87"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="920" height="720" fill="#f8fafc" rx="6"/>
+
+  <rect x="0" y="0" width="920" height="42" rx="6" fill="url(#titleGrad)"/>
+  <rect x="0" y="32" width="920" height="10" fill="url(#titleGrad)"/>
+  <text x="460" y="27" text-anchor="middle" fill="white" font-size="15" font-weight="bold">filter_classifier — 滤波器类型分类器 状态转换图</text>
+
+  <!-- ===== 三状态FSM ===== -->
+
+  <!-- ST_IDLE -->
+  <rect x="320" y="55" width="200" height="48" rx="8" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="420" y="75" text-anchor="middle" fill="#4338ca" font-size="12" font-weight="bold">ST_IDLE (等待)</text>
+  <text x="420" y="93" text-anchor="middle" fill="#4338ca" font-size="10">等待 classify_start=1</text>
+
+  <line x1="420" y1="103" x2="420" y2="125" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 判断result_count -->
+  <polygon points="420,128 510,158 420,188 330,158" fill="#fef3c7" stroke="#d97706" stroke-width="1.3"/>
+  <text x="420" y="156" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">result_count &lt; 3?</text>
+
+  <!-- 太少 → UNKNOWN -->
+  <line x1="330" y1="158" x2="120" y2="158" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="225" y="151" text-anchor="middle" fill="#dc2626" font-size="9">是(数据不足)</text>
+  <rect x="55" y="138" width="120" height="40" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="115" y="155" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="bold">→ UNKNOWN</text>
+  <text x="115" y="170" text-anchor="middle" fill="#991b1b" font-size="9">done=1</text>
+
+  <!-- 足够 → ST_SCAN -->
+  <line x1="420" y1="188" x2="420" y2="212" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="405" y="204" text-anchor="middle" fill="#16a34a" font-size="9">否(数据充足)</text>
+
+  <!-- 初始化 -->
+  <rect x="270" y="214" width="300" height="35" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3"/>
+  <text x="420" y="236" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">初始化: scan_index=0, max_mag=0, min_mag=MAX</text>
+
+  <line x1="420" y1="249" x2="420" y2="272" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- ST_SCAN -->
+  <rect x="240" y="274" width="360" height="85" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="420" y="296" text-anchor="middle" fill="#92400e" font-size="12" font-weight="bold">ST_SCAN (遍历扫描)</text>
+  <line x1="255" y1="304" x2="585" y2="304" stroke="#fde68a" stroke-width="0.5"/>
+  <text x="260" y="324" fill="#475569" font-size="10">read_index = scan_index  (请求读取)</text>
+  <text x="260" y="344" fill="#475569" font-size="10">if scan_index==0 → 记录 first_mag</text>
+  <text x="260" y="360" fill="#475569" font-size="10">if scan_index==last_index → 记录 last_mag</text>
+  <text x="260" y="376" fill="#475569" font-size="10">if mag &gt; max_mag → 更新 max_mag, max_idx</text>
+  <text x="260" y="392" fill="#475569" font-size="10">if mag &lt; min_mag → 更新 min_mag, min_idx</text>
+
+  <line x1="420" y1="359" x2="420" y2="385" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- scan_index == last_index? -->
+  <polygon points="420,388 510,420 420,452 330,420" fill="#fef3c7" stroke="#d97706" stroke-width="1.3"/>
+  <text x="420" y="418" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">== last_index?</text>
+
+  <line x1="330" y1="420" x2="120" y2="420" stroke="#dc2626" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="225" y="413" text-anchor="middle" fill="#dc2626" font-size="9">否 → scan_index++ 继续</text>
+  <line x1="120" y1="420" x2="120" y2="316" stroke="#dc2626" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="120" y1="316" x2="235" y2="316" stroke="#dc2626" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <line x1="420" y1="452" x2="420" y2="478" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="405" y="470" text-anchor="middle" fill="#16a34a" font-size="9">是(扫描完毕)</text>
+
+  <!-- ST_CLASSIFY -->
+  <rect x="210" y="480" width="420" height="65" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="420" y="502" text-anchor="middle" fill="#15803d" font-size="12" font-weight="bold">ST_CLASSIFY (分类判定)</text>
+  <line x1="225" y1="510" x2="615" y2="510" stroke="#bbf7d0" stroke-width="0.5"/>
+  <text x="225" y="530" text-anchor="middle" fill="#475569" font-size="10">按优先级依次判定 → 输出 filter_type (3-bit)</text>
+  <text x="225" y="546" text-anchor="middle" fill="#888" font-size="9">①ALLPASS ②BANDPASS ③NOTCH ④LOWPASS ⑤HIGHPASS ⑥UNKNOWN</text>
+
+  <line x1="420" y1="545" x2="420" y2="570" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- 输出 -->
+  <rect x="320" y="572" width="200" height="30" rx="15" fill="#22c55e" filter="url(#shadow)"/>
+  <text x="420" y="592" text-anchor="middle" fill="white" font-size="12" font-weight="bold">done=1 → ST_IDLE</text>
+
+  <!-- 右侧: 分类规则详细 -->
+  <rect x="660" y="55" width="245" height="650" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="782" y="78" text-anchor="middle" fill="#475569" font-size="12" font-weight="bold">判定规则详解</text>
+  <line x1="675" y1="86" x2="890" y2="86" stroke="#cbd5e1" stroke-width="0.5"/>
+
+  <text x="675" y="108" fill="#1e3a5f" font-size="10" font-weight="bold">预处理参数</text>
+  <text x="685" y="124" fill="#475569" font-size="9">edge_zone = count/8 (边缘区)</text>
+  <text x="685" y="140" fill="#475569" font-size="9">edge_avg = (first+last)/2</text>
+  <text x="685" y="156" fill="#475569" font-size="9">flat_span = max_mag-min_mag</text>
+  <text x="685" y="172" fill="#475569" font-size="9">edge_gap = |first-last|</text>
+
+  <line x1="675" y1="188" x2="890" y2="188" stroke="#cbd5e1" stroke-width="0.5"/>
+
+  <rect x="675" y="196" width="220" height="28" rx="4" fill="#fee2e2"/>
+  <text x="785" y="215" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="bold">① ALLPASS (全通)</text>
+  <text x="685" y="240" fill="#475569" font-size="9">flat_span≤edge_margin</text>
+  <text x="685" y="255" fill="#475569" font-size="9">或 edge_gap≤edge_margin</text>
+  <text x="685" y="275" fill="#888" font-size="9">条件: 全频段增益均匀平坦</text>
+
+  <rect x="675" y="288" width="220" height="28" rx="4" fill="#fef3c7"/>
+  <text x="785" y="307" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">② BANDPASS (带通)</text>
+  <text x="685" y="332" fill="#475569" font-size="9">peak_is_center(峰在中心区)</text>
+  <text x="685" y="347" fill="#475569" font-size="9">&amp;&amp; max≥edge_avg+peak_margin</text>
+  <text x="685" y="362" fill="#475569" font-size="9">&amp;&amp; first≤max-peak_margin</text>
+  <text x="685" y="377" fill="#475569" font-size="9">&amp;&amp; last≤max-peak_margin</text>
+  <text x="685" y="397" fill="#888" font-size="9">条件: 峰值在中部且明显高于两侧</text>
+
+  <rect x="675" y="410" width="220" height="28" rx="4" fill="#dbeafe"/>
+  <text x="785" y="429" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">③ NOTCH (陷波)</text>
+  <text x="685" y="454" fill="#475569" font-size="9">trough_is_center(谷在中心区)</text>
+  <text x="685" y="469" fill="#475569" font-size="9">&amp;&amp; min+trough_margin≤edge_avg</text>
+  <text x="685" y="484" fill="#475569" font-size="9">&amp;&amp; first≥min+margin</text>
+  <text x="685" y="499" fill="#475569" font-size="9">&amp;&amp; last≥min+margin</text>
+  <text x="685" y="519" fill="#888" font-size="9">条件: 谷值在中部且明显低于两侧</text>
+
+  <rect x="675" y="532" width="220" height="28" rx="4" fill="#dcfce7"/>
+  <text x="785" y="551" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">④ LOWPASS (低通)</text>
+  <text x="685" y="576" fill="#475569" font-size="9">first ≥ last + edge_margin</text>
+  <text x="685" y="596" fill="#888" font-size="9">条件: 低频增益显著大于高频</text>
+
+  <rect x="675" y="609" width="220" height="28" rx="4" fill="#e0e7ff"/>
+  <text x="785" y="628" text-anchor="middle" fill="#4338ca" font-size="10" font-weight="bold">⑤ HIGHPASS (高通)</text>
+  <text x="685" y="653" fill="#475569" font-size="9">last ≥ first + edge_margin</text>
+  <text x="685" y="673" fill="#888" font-size="9">条件: 高频增益显著大于低频</text>
+
+  <rect x="675" y="686" width="220" height="20" rx="4" fill="#f1f5f9"/>
+  <text x="785" y="701" text-anchor="middle" fill="#64748b" font-size="10" font-weight="bold">⑥ UNKNOWN: 以上均不满足</text>
+
+  <text x="782" y="720" text-anchor="middle" fill="#888" font-size="9">源文件: src/analysis/filter_classifier.v</text>
+</svg>
