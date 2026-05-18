@@ -1,0 +1,50 @@
+# Quartus Prime project directories
+db/
+incremental_db/
+output_files/
+greybox_tmp/
+
+# Claude Worktrees
+.claude/worktrees/
+
+
+# Quartus Prime log and system files
+*.rpt
+*.summary
+*.smsg
+*.done
+*.pin
+*.qws
+*.bak
+*.srf
+*.qws
+*.jdi
+*.sld
+*.cdf
+*.txt
+
+# Quartus Prime programming files
+*.pof
+*.sof
+*.rbf
+*.jam
+*.jbc
+
+# ModelSim Simulation
+work/
+transcript
+vsim.wlf
+*.wlf
+*.vcd
+*_wave.csv
+modelsim.ini
+
+# Python Virtual Environment
+.venv/
+__pycache__/
+*.pyc
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -60,7 +60,11 @@
 					"strict" : false
 				},
 				{
-					"name" : "ad_data[6]",
+					"name" : "ad_data[3]",
+					"strict" : false
+				},
+				{
+					"name" : "ad_data[7]",
 					"strict" : false
 				},
 				{
@@ -72,11 +76,7 @@
 					"strict" : false
 				},
 				{
-					"name" : "ad_data[7]",
-					"strict" : false
-				},
-				{
-					"name" : "ad_data[3]",
+					"name" : "ad_data[6]",
 					"strict" : false
 				},
 				{

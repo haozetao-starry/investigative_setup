@@ -63,7 +63,6 @@ module i2c_master (
                     if (tx_start && tx_valid) begin
                         busy      <= 1'b1;
                         shift_reg <= tx_dev_addr;
-                        byte_valid<= 1'b1;
                         scl_cnt   <= 7'd0;
                         state     <= S_START;
                     end
@@ -105,7 +104,6 @@ module i2c_master (
                             scl <= 1'b1;
                             if (tx_ready && tx_valid) begin
                                 shift_reg <= tx_byte;
-                                byte_valid<= 1'b1;
                                 if (tx_last) state <= S_STOP;
                                 else state <= S_SEND;
                             end else if (tx_last) begin
