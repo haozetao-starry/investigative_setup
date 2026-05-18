@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-FPGA-based unknown filter identification and emulation system (Cyclone IV E, EP4CE15F17C8). Sweeps 100Hz–10kHz sine through a DUT via DAC, captures response via ADC, runs FFT to get frequency response, estimates biquad IIR coefficients via RLS, classifies filter type (LP/HP/BP/Notch/Allpass), then emulates the identified filter in real-time.
+FPGA-based unknown filter identification and emulation system (Cyclone IV E, EP4CE15F17C8). Sweeps 20Hz–20kHz sine through a DUT via DAC, captures response via ADC, runs FFT to get frequency response, estimates biquad IIR coefficients via RLS, classifies filter type (LP/HP/BP/Notch/Allpass), displays result on I2C OLED, then emulates the identified filter in real-time.
+
+**Sweep parameters:** 20Hz–20kHz, 200Hz step (~100 points, 3 decades). STOP_WORD = 1,717,987. Suitable for RLC filter identification with fc ∈ [300Hz, 8kHz].
 
 **Two project directories co-exist:**
 
@@ -66,6 +68,15 @@ IDLE → PULSE_ACQ → WAIT_BUF → WAIT_FFT → WAIT_RLS → [WAIT_CLASSIFY | I
 **Classification:** `filter_classifier` scans `sweep_result_store` (128-entry register array, zero-latency combinational read) and applies heuristic rules: ALLPASS (flat) → BANDPASS (center peak) → NOTCH (center trough) → LOWPASS → HIGHPASS → UNKNOWN.
 
 **Emulation:** `biquad_emulator` — Direct Form I IIR, Q16 fixed-point, 64-bit accumulator.
+
+**OLED Display:** I2C SSD1306 128x64 OLED via `src/display/` modules:
+- `i2c_master.v` — 400kHz I2C controller, byte-stream interface
+- `ssd1306_cmd.v` — init sequence + framebuffer refresh over I2C
+- `font_8x16.v` — 8×16 bitmap font ROM (ASCII, ~40 glyphs)
+- `oled_display.v` — renders filter_type name to framebuffer on model_valid
+- `fb_ram.v` — 1024×8-bit dual-port framebuffer BRAM
+
+OLED shows filter type text when `model_valid` asserts after identification completes.
 
 ## Key conventions
 
