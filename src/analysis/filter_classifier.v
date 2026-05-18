@@ -5,7 +5,6 @@ module filter_classifier(
     input  wire [6:0]        result_count,
     output reg  [6:0]        read_index,
     input  wire [31:0]       read_h_mag_q16,
-    input  wire signed [15:0] read_h_phase_deg_q8,
     input  wire              read_valid,
     output reg               done,
     output reg  [2:0]        filter_type
