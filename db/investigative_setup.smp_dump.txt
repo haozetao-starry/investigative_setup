@@ -1,4 +1,32 @@
 
+State Machine - |investigative_setup|oled_display:u_oled_disp|state
+Name state.S_WRITE_COL state.S_READ_FONT state.S_CLEAR state.S_IDLE state.S_REFRESH 
+state.S_IDLE 0 0 0 0 0 
+state.S_CLEAR 0 0 1 1 0 
+state.S_READ_FONT 0 1 0 1 0 
+state.S_WRITE_COL 1 0 0 1 0 
+state.S_REFRESH 0 0 0 1 1 
+
+State Machine - |investigative_setup|ssd1306_cmd:u_ssd1306|init_idx
+Name 
+init_idx.00000 
+
+State Machine - |investigative_setup|ssd1306_cmd:u_ssd1306|state
+Name state.S_REFRESH state.S_IDLE state.S_INIT state.S_PWRUP 
+state.S_PWRUP 0 0 0 0 
+state.S_INIT 0 0 1 1 
+state.S_IDLE 0 1 0 1 
+state.S_REFRESH 1 0 0 1 
+
+State Machine - |investigative_setup|i2c_master:u_i2c|state
+Name state.S_DONE_S state.S_STOP state.S_ACK state.S_SEND state.S_START state.S_IDLE 
+state.S_IDLE 0 0 0 0 0 0 
+state.S_START 0 0 0 0 1 1 
+state.S_SEND 0 0 0 1 0 1 
+state.S_ACK 0 0 1 0 0 1 
+state.S_STOP 0 1 0 0 0 1 
+state.S_DONE_S 1 0 0 0 0 1 
+
 State Machine - |investigative_setup|filter_classifier:u_filter_classifier|state
 Name state.ST_IDLE state.ST_CLASSIFY state.ST_SCAN 
 state.ST_IDLE 0 0 0 

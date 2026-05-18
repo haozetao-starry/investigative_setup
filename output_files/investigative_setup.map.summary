@@ -1,14 +1,14 @@
-Analysis & Synthesis Status : Successful - Fri May 01 22:50:39 2026
+Analysis & Synthesis Status : Successful - Mon May 18 17:21:55 2026
 Quartus Prime Version : 18.0.0 Build 614 04/24/2018 SJ Standard Edition
 Revision Name : investigative_setup
 Top-level Entity Name : investigative_setup
 Family : Cyclone IV E
-Total logic elements : 11,538
-    Total combinational functions : 10,766
-    Dedicated logic registers : 3,163
-Total registers : 3163
-Total pins : 21
+Total logic elements : 11,655
+    Total combinational functions : 10,868
+    Dedicated logic registers : 3,233
+Total registers : 3233
+Total pins : 23
 Total virtual pins : 0
-Total memory bits : 115,054
+Total memory bits : 114,030
 Embedded Multiplier 9-bit elements : 62
 Total PLLs : 0

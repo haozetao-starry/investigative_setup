@@ -44,6 +44,14 @@
 					"strict" : false
 				},
 				{
+					"name" : "oled_scl",
+					"strict" : false
+				},
+				{
+					"name" : "oled_sda",
+					"strict" : false
+				},
+				{
 					"name" : "sys_clk",
 					"strict" : false
 				},
@@ -52,11 +60,7 @@
 					"strict" : false
 				},
 				{
-					"name" : "ad_data[3]",
-					"strict" : false
-				},
-				{
-					"name" : "ad_data[7]",
+					"name" : "ad_data[6]",
 					"strict" : false
 				},
 				{
@@ -68,7 +72,11 @@
 					"strict" : false
 				},
 				{
-					"name" : "ad_data[6]",
+					"name" : "ad_data[7]",
+					"strict" : false
+				},
+				{
+					"name" : "ad_data[3]",
 					"strict" : false
 				},
 				{
