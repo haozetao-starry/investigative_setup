@@ -53,6 +53,11 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
+set_global_assignment -name VERILOG_FILE src/display/ssd1306_cmd.v
+set_global_assignment -name VERILOG_FILE src/display/oled_display.v
+set_global_assignment -name VERILOG_FILE src/display/i2c_master.v
+set_global_assignment -name VERILOG_FILE src/display/font_8x16.v
+set_global_assignment -name VERILOG_FILE src/display/fb_ram.v
 set_global_assignment -name VERILOG_FILE src/fft/fft_processor.v
 set_global_assignment -name VERILOG_FILE src/analysis/sweep_result_store.v
 set_global_assignment -name VERILOG_FILE src/analysis/filter_classifier.v
