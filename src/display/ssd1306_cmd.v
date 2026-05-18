@@ -85,9 +85,10 @@ module ssd1306_cmd (
                             i2c_tx_valid <= 1'b1;
                             i2c_tx_last  <= 1'b0;
                             byte_seq_idx <= 5'd0;
-                            byte_seq_len <= INIT_CMDS;
+                            byte_seq_len <= 5'd23;  // INIT_CMDS
                             for (i = 0; i < INIT_CMDS; i = i + 1)
                                 byte_seq[i] <= init_cmds[i];
+                            init_idx <= 5'd1;  // ← FIX: prevent re-entering this branch
                         end else if (i2c_tx_ready) begin
                             if (byte_seq_idx < byte_seq_len) begin
                                 i2c_tx_byte  <= byte_seq[byte_seq_idx];
