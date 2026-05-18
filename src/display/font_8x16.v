@@ -1,217 +1,205 @@
-// Minimal 8x16 Font ROM for SSD1306 OLED
-// Covers: digits 0-9, letters A-Z, special chars
-// Each glyph: 16 bytes (LSB=top pixel of row, MSB=bottom)
+// 8x16 Font ROM for SSD1306 OLED
+// 19 glyphs: A,B,C,D,G,H,I,K,L,N,O,P,S,T,U,W,?,space
+// Each glyph: 16 bytes, LSB = pixel row low, MSB = pixel row high
+// Horizontal: bit7=left, bit0=right
 
 module font_8x16 (
-    input  wire [6:0]  char_code,   // 7-bit ASCII
-    input  wire [3:0]  row,          // 0..15 row within glyph
-    output reg  [7:0]  pixel_data    // 8-bit column bitmap
+    input  wire [6:0]  char_code,
+    input  wire [3:0]  row,
+    output reg  [7:0]  pixel_data
 );
 
-    // ── Font data: 16 bytes per glyph ──────────────────
-    // Glyph index mapping:
-    //   '0'..'9' → 0..9
-    //   'A'..'Z' → 10..35
-    //   ' ' → 36
-    //   ':' → 37
-    //   '-' → 38
-    //   '/' → 39
-    //   '!' → 40
-    //
-    // Font data adapted from public-domain 8x16 bitmap font
-    // Transposed for SSD1306 vertical-byte layout
+    // Map ASCII to glyph index 0..18
+    wire [4:0] gidx =
+        (char_code == 7'h41) ? 5'd0  :  // A
+        (char_code == 7'h42) ? 5'd1  :  // B
+        (char_code == 7'h43) ? 5'd2  :  // C
+        (char_code == 7'h44) ? 5'd3  :  // D
+        (char_code == 7'h47) ? 5'd4  :  // G
+        (char_code == 7'h48) ? 5'd5  :  // H
+        (char_code == 7'h49) ? 5'd6  :  // I
+        (char_code == 7'h4B) ? 5'd7  :  // K
+        (char_code == 7'h4C) ? 5'd8  :  // L
+        (char_code == 7'h4E) ? 5'd9  :  // N
+        (char_code == 7'h4F) ? 5'd10 :  // O
+        (char_code == 7'h50) ? 5'd11 :  // P
+        (char_code == 7'h53) ? 5'd12 :  // S
+        (char_code == 7'h54) ? 5'd13 :  // T
+        (char_code == 7'h55) ? 5'd14 :  // U
+        (char_code == 7'h57) ? 5'd15 :  // W
+        (char_code == 7'h3F) ? 5'd16 :  // ?
+        (char_code == 7'h20) ? 5'd17 :  // space
+        5'd17;  // default: space
 
-    reg [7:0] font_data [0:655];  // 41 glyphs × 16 rows = 656 bytes
-
-    wire [9:0] addr = {glyph_idx, row};
-
-    // Convert ASCII to glyph index
-    wire [5:0] glyph_idx;
-    assign glyph_idx =
-        (char_code >= 7'h30 && char_code <= 7'h39) ? (char_code[5:0] - 6'd0)  :  // '0'-'9' → 0-9
-        (char_code >= 7'h41 && char_code <= 7'h5A) ? (char_code[5:0] + 6'd4)  :  // 'A'-'Z' → 10-35
-        (char_code == 7'h20) ? 6'd36 :   // space
-        (char_code == 7'h3A) ? 6'd37 :   // ':'
-        (char_code == 7'h2D) ? 6'd38 :   // '-'
-        (char_code == 7'h2F) ? 6'd39 :   // '/'
-        6'd36;                            // default: space
-
-    // Initialize font data
-    integer i;
-    initial begin
-        // ── '0' (glyph 0) ──────────────────────────
-        font_data[0]   = 8'h00; font_data[1]   = 8'h00;
-        font_data[2]   = 8'h00; font_data[3]   = 8'h00;
-        font_data[4]   = 8'h3C; font_data[5]   = 8'h66;
-        font_data[6]   = 8'h66; font_data[7]   = 8'h66;
-        font_data[8]   = 8'h66; font_data[9]   = 8'h66;
-        font_data[10]  = 8'h66; font_data[11]  = 8'h3C;
-        font_data[12]  = 8'h00; font_data[13]  = 8'h00;
-        font_data[14]  = 8'h00; font_data[15]  = 8'h00;
-
-        // ── '1' (glyph 1) ──────────────────────────
-        font_data[16]  = 8'h00; font_data[17]  = 8'h00;
-        font_data[18]  = 8'h00; font_data[19]  = 8'h00;
-        font_data[20]  = 8'h18; font_data[21]  = 8'h38;
-        font_data[22]  = 8'h78; font_data[23]  = 8'h18;
-        font_data[24]  = 8'h18; font_data[25]  = 8'h18;
-        font_data[26]  = 8'h18; font_data[27]  = 8'h7E;
-        font_data[28]  = 8'h00; font_data[29]  = 8'h00;
-        font_data[30]  = 8'h00; font_data[31]  = 8'h00;
-
-        // ── '2' (glyph 2) ──────────────────────────
-        font_data[32]  = 8'h00; font_data[33]  = 8'h00;
-        font_data[34]  = 8'h00; font_data[35]  = 8'h00;
-        font_data[36]  = 8'h3C; font_data[37]  = 8'h66;
-        font_data[38]  = 8'h06; font_data[39]  = 8'h0C;
-        font_data[40]  = 8'h18; font_data[41]  = 8'h30;
-        font_data[42]  = 8'h60; font_data[43]  = 8'h7E;
-        font_data[44]  = 8'h00; font_data[45]  = 8'h00;
-        font_data[46]  = 8'h00; font_data[47]  = 8'h00;
-
-        // ── '3' (glyph 3) ──────────────────────────
-        font_data[48]  = 8'h00; font_data[49]  = 8'h00;
-        font_data[50]  = 8'h00; font_data[51]  = 8'h00;
-        font_data[52]  = 8'h3C; font_data[53]  = 8'h66;
-        font_data[54]  = 8'h06; font_data[55]  = 8'h1C;
-        font_data[56]  = 8'h06; font_data[57]  = 8'h66;
-        font_data[58]  = 8'h66; font_data[59]  = 8'h3C;
-        font_data[60]  = 8'h00; font_data[61]  = 8'h00;
-        font_data[62]  = 8'h00; font_data[63]  = 8'h00;
-
-        // ── '4' (glyph 4) ──────────────────────────
-        font_data[64]  = 8'h00; font_data[65]  = 8'h00;
-        font_data[66]  = 8'h00; font_data[67]  = 8'h00;
-        font_data[68]  = 8'h0C; font_data[69]  = 8'h1C;
-        font_data[70]  = 8'h3C; font_data[71]  = 8'h6C;
-        font_data[72]  = 8'hCC; font_data[73]  = 8'hFE;
-        font_data[74]  = 8'h0C; font_data[75]  = 8'h0C;
-        font_data[76]  = 8'h00; font_data[77]  = 8'h00;
-        font_data[78]  = 8'h00; font_data[79]  = 8'h00;
-
-        // ── '5' (glyph 5) ──────────────────────────
-        font_data[80]  = 8'h00; font_data[81]  = 8'h00;
-        font_data[82]  = 8'h00; font_data[83]  = 8'h00;
-        font_data[84]  = 8'h7E; font_data[85]  = 8'h60;
-        font_data[86]  = 8'h7C; font_data[87]  = 8'h06;
-        font_data[88]  = 8'h06; font_data[89]  = 8'h66;
-        font_data[90]  = 8'h66; font_data[91]  = 8'h3C;
-        font_data[92]  = 8'h00; font_data[93]  = 8'h00;
-        font_data[94]  = 8'h00; font_data[95]  = 8'h00;
-
-        // ── '6'..'9' abbreviated (fill with '0' pattern for now) ──
-        // We'll just use the same shape
-        for (i = 96; i < 160; i = i + 1) font_data[i] = font_data[i - 96];
-
-        // ── 'A' (glyph 10) ─────────────────────────
-        font_data[160] = 8'h00; font_data[161] = 8'h00;
-        font_data[162] = 8'h00; font_data[163] = 8'h00;
-        font_data[164] = 8'h18; font_data[165] = 8'h3C;
-        font_data[166] = 8'h66; font_data[167] = 8'h66;
-        font_data[168] = 8'h7E; font_data[169] = 8'h66;
-        font_data[170] = 8'h66; font_data[171] = 8'h66;
-        font_data[172] = 8'h00; font_data[173] = 8'h00;
-        font_data[174] = 8'h00; font_data[175] = 8'h00;
-
-        // ── 'B' (glyph 11) ─────────────────────────
-        font_data[176] = 8'h00; font_data[177] = 8'h00;
-        font_data[178] = 8'h00; font_data[179] = 8'h00;
-        font_data[180] = 8'h7C; font_data[181] = 8'h66;
-        font_data[182] = 8'h66; font_data[183] = 8'h7C;
-        font_data[184] = 8'h66; font_data[185] = 8'h66;
-        font_data[186] = 8'h66; font_data[187] = 8'h7C;
-        font_data[188] = 8'h00; font_data[189] = 8'h00;
-        font_data[190] = 8'h00; font_data[191] = 8'h00;
-
-        // ── 'C' (glyph 12) ─────────────────────────
-        font_data[192] = 8'h00; font_data[193] = 8'h00;
-        font_data[194] = 8'h00; font_data[195] = 8'h00;
-        font_data[196] = 8'h3C; font_data[197] = 8'h66;
-        font_data[198] = 8'h60; font_data[199] = 8'h60;
-        font_data[200] = 8'h60; font_data[201] = 8'h66;
-        font_data[202] = 8'h66; font_data[203] = 8'h3C;
-        font_data[204] = 8'h00; font_data[205] = 8'h00;
-        font_data[206] = 8'h00; font_data[207] = 8'h00;
-
-        // ── 'D' (glyph 13) ─────────────────────────
-        font_data[208] = 8'h00; font_data[209] = 8'h00;
-        font_data[210] = 8'h00; font_data[211] = 8'h00;
-        font_data[212] = 8'h78; font_data[213] = 8'h6C;
-        font_data[214] = 8'h66; font_data[215] = 8'h66;
-        font_data[216] = 8'h66; font_data[217] = 8'h6C;
-        font_data[218] = 8'h6C; font_data[219] = 8'h78;
-        font_data[220] = 8'h00; font_data[221] = 8'h00;
-        font_data[222] = 8'h00; font_data[223] = 8'h00;
-
-        // ── 'E' (glyph 14) ─────────────────────────
-        font_data[224] = 8'h00; font_data[225] = 8'h00;
-        font_data[226] = 8'h00; font_data[227] = 8'h00;
-        font_data[228] = 8'h7E; font_data[229] = 8'h60;
-        font_data[230] = 8'h60; font_data[231] = 8'h7C;
-        font_data[232] = 8'h60; font_data[233] = 8'h60;
-        font_data[234] = 8'h60; font_data[235] = 8'h7E;
-        font_data[236] = 8'h00; font_data[237] = 8'h00;
-        font_data[238] = 8'h00; font_data[239] = 8'h00;
-
-        // ── 'F' (glyph 15) ─────────────────────────
-        font_data[240] = 8'h00; font_data[241] = 8'h00;
-        font_data[242] = 8'h00; font_data[243] = 8'h00;
-        font_data[244] = 8'h7E; font_data[245] = 8'h60;
-        font_data[246] = 8'h60; font_data[247] = 8'h7C;
-        font_data[248] = 8'h60; font_data[249] = 8'h60;
-        font_data[250] = 8'h60; font_data[251] = 8'h60;
-        font_data[252] = 8'h00; font_data[253] = 8'h00;
-        font_data[254] = 8'h00; font_data[255] = 8'h00;
-
-        // ── 'G'..'Z' fill with 'A' pattern ──────────
-        for (i = 256; i < 576; i = i + 1) font_data[i] = font_data[160 + ((i-256) % 16)];
-
-        // ── space (glyph 36) ────────────────────────
-        for (i = 576; i < 592; i = i + 1) font_data[i] = 8'h00;
-
-        // ── ':' (glyph 37) ──────────────────────────
-        font_data[592] = 8'h00; font_data[593] = 8'h00;
-        font_data[594] = 8'h00; font_data[595] = 8'h00;
-        font_data[596] = 8'h00; font_data[597] = 8'h18;
-        font_data[598] = 8'h18; font_data[599] = 8'h00;
-        font_data[600] = 8'h18; font_data[601] = 8'h18;
-        font_data[602] = 8'h00; font_data[603] = 8'h00;
-        font_data[604] = 8'h00; font_data[605] = 8'h00;
-        font_data[606] = 8'h00; font_data[607] = 8'h00;
-
-        // ── '-' (glyph 38) ──────────────────────────
-        font_data[608] = 8'h00; font_data[609] = 8'h00;
-        font_data[610] = 8'h00; font_data[611] = 8'h00;
-        font_data[612] = 8'h00; font_data[613] = 8'h00;
-        font_data[614] = 8'h7E; font_data[615] = 8'h00;
-        font_data[616] = 8'h00; font_data[617] = 8'h00;
-        font_data[618] = 8'h00; font_data[619] = 8'h00;
-        font_data[620] = 8'h00; font_data[621] = 8'h00;
-        font_data[622] = 8'h00; font_data[623] = 8'h00;
-
-        // ── '/' (glyph 39) ──────────────────────────
-        font_data[624] = 8'h00; font_data[625] = 8'h00;
-        font_data[626] = 8'h00; font_data[627] = 8'h00;
-        font_data[628] = 8'h06; font_data[629] = 8'h0C;
-        font_data[630] = 8'h18; font_data[631] = 8'h30;
-        font_data[632] = 8'h60; font_data[633] = 8'hC0;
-        font_data[634] = 8'h80; font_data[635] = 8'h00;
-        font_data[636] = 8'h00; font_data[637] = 8'h00;
-        font_data[638] = 8'h00; font_data[639] = 8'h00;
-
-        // ── '!' (glyph 40) ──────────────────────────
-        font_data[640] = 8'h00; font_data[641] = 8'h00;
-        font_data[642] = 8'h00; font_data[643] = 8'h18;
-        font_data[644] = 8'h18; font_data[645] = 8'h18;
-        font_data[646] = 8'h18; font_data[647] = 8'h18;
-        font_data[648] = 8'h00; font_data[649] = 8'h18;
-        font_data[650] = 8'h18; font_data[651] = 8'h00;
-        font_data[652] = 8'h00; font_data[653] = 8'h00;
-        font_data[654] = 8'h00; font_data[655] = 8'h00;
-    end
+    wire [8:0] addr = {gidx, row};  // 5+4 = 9 bits, 0..303
 
     always @(*) begin
-        pixel_data = font_data[addr];
+        case (addr)
+            // ── 'A' (glyph 0) ──────────────────────────
+            9'h000: pixel_data = 8'h00; 9'h001: pixel_data = 8'h00;
+            9'h002: pixel_data = 8'h00; 9'h003: pixel_data = 8'h00;
+            9'h004: pixel_data = 8'h18; 9'h005: pixel_data = 8'h3C;
+            9'h006: pixel_data = 8'h66; 9'h007: pixel_data = 8'h66;
+            9'h008: pixel_data = 8'h7E; 9'h009: pixel_data = 8'h66;
+            9'h00A: pixel_data = 8'h66; 9'h00B: pixel_data = 8'h66;
+            9'h00C: pixel_data = 8'h00; 9'h00D: pixel_data = 8'h00;
+            9'h00E: pixel_data = 8'h00; 9'h00F: pixel_data = 8'h00;
+            // ── 'B' ────────────────────────────────────
+            9'h010: pixel_data = 8'h00; 9'h011: pixel_data = 8'h00;
+            9'h012: pixel_data = 8'h00; 9'h013: pixel_data = 8'h00;
+            9'h014: pixel_data = 8'h7C; 9'h015: pixel_data = 8'h66;
+            9'h016: pixel_data = 8'h66; 9'h017: pixel_data = 8'h7C;
+            9'h018: pixel_data = 8'h66; 9'h019: pixel_data = 8'h66;
+            9'h01A: pixel_data = 8'h66; 9'h01B: pixel_data = 8'h7C;
+            9'h01C: pixel_data = 8'h00; 9'h01D: pixel_data = 8'h00;
+            9'h01E: pixel_data = 8'h00; 9'h01F: pixel_data = 8'h00;
+            // ── 'C' ────────────────────────────────────
+            9'h020: pixel_data = 8'h00; 9'h021: pixel_data = 8'h00;
+            9'h022: pixel_data = 8'h00; 9'h023: pixel_data = 8'h00;
+            9'h024: pixel_data = 8'h3C; 9'h025: pixel_data = 8'h66;
+            9'h026: pixel_data = 8'h60; 9'h027: pixel_data = 8'h60;
+            9'h028: pixel_data = 8'h60; 9'h029: pixel_data = 8'h66;
+            9'h02A: pixel_data = 8'h66; 9'h02B: pixel_data = 8'h3C;
+            9'h02C: pixel_data = 8'h00; 9'h02D: pixel_data = 8'h00;
+            9'h02E: pixel_data = 8'h00; 9'h02F: pixel_data = 8'h00;
+            // ── 'D' ────────────────────────────────────
+            9'h030: pixel_data = 8'h00; 9'h031: pixel_data = 8'h00;
+            9'h032: pixel_data = 8'h00; 9'h033: pixel_data = 8'h00;
+            9'h034: pixel_data = 8'h78; 9'h035: pixel_data = 8'h6C;
+            9'h036: pixel_data = 8'h66; 9'h037: pixel_data = 8'h66;
+            9'h038: pixel_data = 8'h66; 9'h039: pixel_data = 8'h6C;
+            9'h03A: pixel_data = 8'h6C; 9'h03B: pixel_data = 8'h78;
+            9'h03C: pixel_data = 8'h00; 9'h03D: pixel_data = 8'h00;
+            9'h03E: pixel_data = 8'h00; 9'h03F: pixel_data = 8'h00;
+            // ── 'G' ────────────────────────────────────
+            9'h040: pixel_data = 8'h00; 9'h041: pixel_data = 8'h00;
+            9'h042: pixel_data = 8'h00; 9'h043: pixel_data = 8'h00;
+            9'h044: pixel_data = 8'h3C; 9'h045: pixel_data = 8'h66;
+            9'h046: pixel_data = 8'h60; 9'h047: pixel_data = 8'h6E;
+            9'h048: pixel_data = 8'h66; 9'h049: pixel_data = 8'h66;
+            9'h04A: pixel_data = 8'h66; 9'h04B: pixel_data = 8'h3C;
+            9'h04C: pixel_data = 8'h00; 9'h04D: pixel_data = 8'h00;
+            9'h04E: pixel_data = 8'h00; 9'h04F: pixel_data = 8'h00;
+            // ── 'H' ────────────────────────────────────
+            9'h050: pixel_data = 8'h00; 9'h051: pixel_data = 8'h00;
+            9'h052: pixel_data = 8'h00; 9'h053: pixel_data = 8'h00;
+            9'h054: pixel_data = 8'h66; 9'h055: pixel_data = 8'h66;
+            9'h056: pixel_data = 8'h66; 9'h057: pixel_data = 8'h7E;
+            9'h058: pixel_data = 8'h66; 9'h059: pixel_data = 8'h66;
+            9'h05A: pixel_data = 8'h66; 9'h05B: pixel_data = 8'h66;
+            9'h05C: pixel_data = 8'h00; 9'h05D: pixel_data = 8'h00;
+            9'h05E: pixel_data = 8'h00; 9'h05F: pixel_data = 8'h00;
+            // ── 'I' ────────────────────────────────────
+            9'h060: pixel_data = 8'h00; 9'h061: pixel_data = 8'h00;
+            9'h062: pixel_data = 8'h00; 9'h063: pixel_data = 8'h00;
+            9'h064: pixel_data = 8'h3C; 9'h065: pixel_data = 8'h18;
+            9'h066: pixel_data = 8'h18; 9'h067: pixel_data = 8'h18;
+            9'h068: pixel_data = 8'h18; 9'h069: pixel_data = 8'h18;
+            9'h06A: pixel_data = 8'h18; 9'h06B: pixel_data = 8'h3C;
+            9'h06C: pixel_data = 8'h00; 9'h06D: pixel_data = 8'h00;
+            9'h06E: pixel_data = 8'h00; 9'h06F: pixel_data = 8'h00;
+            // ── 'K' ────────────────────────────────────
+            9'h070: pixel_data = 8'h00; 9'h071: pixel_data = 8'h00;
+            9'h072: pixel_data = 8'h00; 9'h073: pixel_data = 8'h00;
+            9'h074: pixel_data = 8'h66; 9'h075: pixel_data = 8'h6C;
+            9'h076: pixel_data = 8'h78; 9'h077: pixel_data = 8'h70;
+            9'h078: pixel_data = 8'h78; 9'h079: pixel_data = 8'h6C;
+            9'h07A: pixel_data = 8'h66; 9'h07B: pixel_data = 8'h66;
+            9'h07C: pixel_data = 8'h00; 9'h07D: pixel_data = 8'h00;
+            9'h07E: pixel_data = 8'h00; 9'h07F: pixel_data = 8'h00;
+            // ── 'L' ────────────────────────────────────
+            9'h080: pixel_data = 8'h00; 9'h081: pixel_data = 8'h00;
+            9'h082: pixel_data = 8'h00; 9'h083: pixel_data = 8'h00;
+            9'h084: pixel_data = 8'h60; 9'h085: pixel_data = 8'h60;
+            9'h086: pixel_data = 8'h60; 9'h087: pixel_data = 8'h60;
+            9'h088: pixel_data = 8'h60; 9'h089: pixel_data = 8'h60;
+            9'h08A: pixel_data = 8'h60; 9'h08B: pixel_data = 8'h7E;
+            9'h08C: pixel_data = 8'h00; 9'h08D: pixel_data = 8'h00;
+            9'h08E: pixel_data = 8'h00; 9'h08F: pixel_data = 8'h00;
+            // ── 'N' ────────────────────────────────────
+            9'h090: pixel_data = 8'h00; 9'h091: pixel_data = 8'h00;
+            9'h092: pixel_data = 8'h00; 9'h093: pixel_data = 8'h00;
+            9'h094: pixel_data = 8'h66; 9'h095: pixel_data = 8'h76;
+            9'h096: pixel_data = 8'h7E; 9'h097: pixel_data = 8'h6E;
+            9'h098: pixel_data = 8'h66; 9'h099: pixel_data = 8'h66;
+            9'h09A: pixel_data = 8'h66; 9'h09B: pixel_data = 8'h66;
+            9'h09C: pixel_data = 8'h00; 9'h09D: pixel_data = 8'h00;
+            9'h09E: pixel_data = 8'h00; 9'h09F: pixel_data = 8'h00;
+            // ── 'O' ────────────────────────────────────
+            9'h0A0: pixel_data = 8'h00; 9'h0A1: pixel_data = 8'h00;
+            9'h0A2: pixel_data = 8'h00; 9'h0A3: pixel_data = 8'h00;
+            9'h0A4: pixel_data = 8'h3C; 9'h0A5: pixel_data = 8'h66;
+            9'h0A6: pixel_data = 8'h66; 9'h0A7: pixel_data = 8'h66;
+            9'h0A8: pixel_data = 8'h66; 9'h0A9: pixel_data = 8'h66;
+            9'h0AA: pixel_data = 8'h66; 9'h0AB: pixel_data = 8'h3C;
+            9'h0AC: pixel_data = 8'h00; 9'h0AD: pixel_data = 8'h00;
+            9'h0AE: pixel_data = 8'h00; 9'h0AF: pixel_data = 8'h00;
+            // ── 'P' ────────────────────────────────────
+            9'h0B0: pixel_data = 8'h00; 9'h0B1: pixel_data = 8'h00;
+            9'h0B2: pixel_data = 8'h00; 9'h0B3: pixel_data = 8'h00;
+            9'h0B4: pixel_data = 8'h7C; 9'h0B5: pixel_data = 8'h66;
+            9'h0B6: pixel_data = 8'h66; 9'h0B7: pixel_data = 8'h7C;
+            9'h0B8: pixel_data = 8'h60; 9'h0B9: pixel_data = 8'h60;
+            9'h0BA: pixel_data = 8'h60; 9'h0BB: pixel_data = 8'h60;
+            9'h0BC: pixel_data = 8'h00; 9'h0BD: pixel_data = 8'h00;
+            9'h0BE: pixel_data = 8'h00; 9'h0BF: pixel_data = 8'h00;
+            // ── 'S' ────────────────────────────────────
+            9'h0C0: pixel_data = 8'h00; 9'h0C1: pixel_data = 8'h00;
+            9'h0C2: pixel_data = 8'h00; 9'h0C3: pixel_data = 8'h00;
+            9'h0C4: pixel_data = 8'h3C; 9'h0C5: pixel_data = 8'h66;
+            9'h0C6: pixel_data = 8'h60; 9'h0C7: pixel_data = 8'h3C;
+            9'h0C8: pixel_data = 8'h06; 9'h0C9: pixel_data = 8'h66;
+            9'h0CA: pixel_data = 8'h66; 9'h0CB: pixel_data = 8'h3C;
+            9'h0CC: pixel_data = 8'h00; 9'h0CD: pixel_data = 8'h00;
+            9'h0CE: pixel_data = 8'h00; 9'h0CF: pixel_data = 8'h00;
+            // ── 'T' ────────────────────────────────────
+            9'h0D0: pixel_data = 8'h00; 9'h0D1: pixel_data = 8'h00;
+            9'h0D2: pixel_data = 8'h00; 9'h0D3: pixel_data = 8'h00;
+            9'h0D4: pixel_data = 8'h7E; 9'h0D5: pixel_data = 8'h18;
+            9'h0D6: pixel_data = 8'h18; 9'h0D7: pixel_data = 8'h18;
+            9'h0D8: pixel_data = 8'h18; 9'h0D9: pixel_data = 8'h18;
+            9'h0DA: pixel_data = 8'h18; 9'h0DB: pixel_data = 8'h18;
+            9'h0DC: pixel_data = 8'h00; 9'h0DD: pixel_data = 8'h00;
+            9'h0DE: pixel_data = 8'h00; 9'h0DF: pixel_data = 8'h00;
+            // ── 'U' ────────────────────────────────────
+            9'h0E0: pixel_data = 8'h00; 9'h0E1: pixel_data = 8'h00;
+            9'h0E2: pixel_data = 8'h00; 9'h0E3: pixel_data = 8'h00;
+            9'h0E4: pixel_data = 8'h66; 9'h0E5: pixel_data = 8'h66;
+            9'h0E6: pixel_data = 8'h66; 9'h0E7: pixel_data = 8'h66;
+            9'h0E8: pixel_data = 8'h66; 9'h0E9: pixel_data = 8'h66;
+            9'h0EA: pixel_data = 8'h66; 9'h0EB: pixel_data = 8'h3C;
+            9'h0EC: pixel_data = 8'h00; 9'h0ED: pixel_data = 8'h00;
+            9'h0EE: pixel_data = 8'h00; 9'h0EF: pixel_data = 8'h00;
+            // ── 'W' ────────────────────────────────────
+            9'h0F0: pixel_data = 8'h00; 9'h0F1: pixel_data = 8'h00;
+            9'h0F2: pixel_data = 8'h00; 9'h0F3: pixel_data = 8'h00;
+            9'h0F4: pixel_data = 8'h66; 9'h0F5: pixel_data = 8'h66;
+            9'h0F6: pixel_data = 8'h66; 9'h0F7: pixel_data = 8'h66;
+            9'h0F8: pixel_data = 8'h7E; 9'h0F9: pixel_data = 8'h7E;
+            9'h0FA: pixel_data = 8'h66; 9'h0FB: pixel_data = 8'h66;
+            9'h0FC: pixel_data = 8'h00; 9'h0FD: pixel_data = 8'h00;
+            9'h0FE: pixel_data = 8'h00; 9'h0FF: pixel_data = 8'h00;
+            // ── '?' ────────────────────────────────────
+            9'h100: pixel_data = 8'h00; 9'h101: pixel_data = 8'h00;
+            9'h102: pixel_data = 8'h00; 9'h103: pixel_data = 8'h00;
+            9'h104: pixel_data = 8'h3C; 9'h105: pixel_data = 8'h66;
+            9'h106: pixel_data = 8'h06; 9'h107: pixel_data = 8'h0C;
+            9'h108: pixel_data = 8'h18; 9'h109: pixel_data = 8'h18;
+            9'h10A: pixel_data = 8'h00; 9'h10B: pixel_data = 8'h18;
+            9'h10C: pixel_data = 8'h00; 9'h10D: pixel_data = 8'h00;
+            9'h10E: pixel_data = 8'h00; 9'h10F: pixel_data = 8'h00;
+            // ── space ──────────────────────────────────
+            9'h110: pixel_data = 8'h00; 9'h111: pixel_data = 8'h00;
+            9'h112: pixel_data = 8'h00; 9'h113: pixel_data = 8'h00;
+            9'h114: pixel_data = 8'h00; 9'h115: pixel_data = 8'h00;
+            9'h116: pixel_data = 8'h00; 9'h117: pixel_data = 8'h00;
+            9'h118: pixel_data = 8'h00; 9'h119: pixel_data = 8'h00;
+            9'h11A: pixel_data = 8'h00; 9'h11B: pixel_data = 8'h00;
+            9'h11C: pixel_data = 8'h00; 9'h11D: pixel_data = 8'h00;
+            9'h11E: pixel_data = 8'h00; 9'h11F: pixel_data = 8'h00;
+            // ── default: space ──────────────────────────
+            default: pixel_data = 8'h00;
+        endcase
     end
 
 endmodule
