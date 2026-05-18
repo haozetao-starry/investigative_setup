@@ -34,7 +34,6 @@ module i2c_master (
     reg [2:0] state;
     reg [2:0] bit_cnt;
     reg [7:0] shift_reg;
-    reg       byte_valid;
 
     reg sda_out, sda_oen;
     assign sda = sda_oen ? 1'bz : sda_out;
@@ -49,7 +48,6 @@ module i2c_master (
             sda_oen   <= 1'b1;
             bit_cnt   <= 3'd0;
             tx_ready  <= 1'b0;
-            byte_valid<= 1'b0;
             scl_cnt   <= 7'd0;
         end else begin
             done     <= 1'b0;
