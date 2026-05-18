@@ -67,19 +67,7 @@ module investigative_setup(
     wire frame_last_for_rls = (f_word >= STOP_WORD);
 
     // ── OLED subsystem wires ────────────────────────────
-    wire [9:0]  fb_wr_addr, fb_rd_addr;
-    wire [7:0]  fb_wr_data, fb_rd_data;
-    wire        fb_wren;
-    wire        oled_refresh_req, ssd1306_bsy, ssd1306_init_done;
-    // I2C byte-stream
-    wire        i2c_tx_start;
-    wire [7:0]  i2c_tx_dev, i2c_tx_byte;
-    wire        i2c_tx_valid, i2c_tx_last, i2c_tx_ready;
-    wire        i2c_bsy, i2c_done;
-    // Font
-    wire [6:0]  font_char;
-    wire [3:0]  font_row;
-    wire [7:0]  font_pixel;
+    // (all internal to oled_top, only scl/sda at top level)
 
     assign capture_rd_addr = fft_busy ? fft_rd_addr : 10'd0;
     assign da_src_data     = mimic_mode ? biquad_wave : dds_wave;
@@ -172,45 +160,15 @@ module investigative_setup(
     );
 
     // ══════════════════════════════════════════════════
-    //  OLED 显示子系统
+    //  OLED 显示子系统 (封装在 oled_top 内)
     // ══════════════════════════════════════════════════
-    fb_ram u_fb_ram (
-        .clk(sys_clk),
-        .wr_addr(fb_wr_addr), .wr_data(fb_wr_data), .wren(fb_wren),
-        .rd_addr(fb_rd_addr), .rd_data(fb_rd_data)
-    );
-
-    i2c_master u_i2c (
-        .clk(sys_clk), .rst_n(sys_rst_n),
-        .tx_start(i2c_tx_start), .tx_dev_addr(i2c_tx_dev),
-        .tx_byte(i2c_tx_byte), .tx_valid(i2c_tx_valid),
-        .tx_ready(i2c_tx_ready), .tx_last(i2c_tx_last),
-        .busy(i2c_bsy), .done(i2c_done),
-        .scl(oled_scl), .sda(oled_sda)
-    );
-
-    font_8x16 u_font (
-        .char_code(font_char), .row(font_row), .pixel_data(font_pixel)
-    );
-
-    ssd1306_cmd u_ssd1306 (
-        .clk(sys_clk), .rst_n(sys_rst_n),
-        .fb_addr(fb_rd_addr), .fb_data(fb_rd_data),
-        .refresh_req(oled_refresh_req), .busy(ssd1306_bsy),
-        .init_done(ssd1306_init_done),
-        .i2c_tx_start(i2c_tx_start), .i2c_tx_dev(i2c_tx_dev),
-        .i2c_tx_byte(i2c_tx_byte), .i2c_tx_valid(i2c_tx_valid),
-        .i2c_tx_last(i2c_tx_last), .i2c_tx_ready(i2c_tx_ready),
-        .i2c_bsy(i2c_bsy), .i2c_done(i2c_done)
-    );
-
-    oled_display u_oled_disp (
-        .clk(sys_clk), .rst_n(sys_rst_n),
-        .filter_type(filter_type), .model_valid(model_valid),
-        .fb_wr_addr(fb_wr_addr), .fb_wr_data(fb_wr_data), .fb_wren(fb_wren),
-        .refresh_req(oled_refresh_req),
-        .ssd1306_busy(ssd1306_bsy), .ssd1306_init_done(ssd1306_init_done),
-        .font_char(font_char), .font_row(font_row), .font_pixel(font_pixel)
+    oled_top u_oled (
+        .clk        (sys_clk),
+        .rst_n      (sys_rst_n),
+        .filter_type(filter_type),
+        .model_valid(model_valid),
+        .oled_scl   (oled_scl),
+        .oled_sda   (oled_sda)
     );
 
 endmodule
