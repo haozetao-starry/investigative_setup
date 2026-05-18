@@ -179,13 +179,13 @@ module fft_processor(
 
     function signed [15:0] wrap_phase_q8_fn;
         input signed [16:0] phase_q8_in;
-        reg   signed [16:0] wrapped_q8;
+        reg   signed [17:0] wrapped_q8;
         begin
-            wrapped_q8 = phase_q8_in;
-            if (wrapped_q8 > 17'sd46080)
-                wrapped_q8 = wrapped_q8 - 17'sd92160;
-            else if (wrapped_q8 < -17'sd46080)
-                wrapped_q8 = wrapped_q8 + 17'sd92160;
+            wrapped_q8 = {phase_q8_in[16], phase_q8_in};
+            if (wrapped_q8 > 18'sd46080)
+                wrapped_q8 = wrapped_q8 - 18'sd92160;
+            else if (wrapped_q8 < -18'sd46080)
+                wrapped_q8 = wrapped_q8 + 18'sd92160;
             wrap_phase_q8_fn = wrapped_q8[15:0];
         end
     endfunction
